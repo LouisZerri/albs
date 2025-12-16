@@ -1,0 +1,53 @@
+services:
+  php-apache:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: albs_php_apache
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "8080:80"
+    environment:
+      - APP_ENV=dev
+      - DATABASE_URL=mysql://albs_user:albs_password@mysql:3306/albs_db?serverVersion=8.0&charset=utf8mb4
+    depends_on:
+      - mysql
+    networks:
+      - albs_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: albs_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: albs_db
+      MYSQL_USER: albs_user
+      MYSQL_PASSWORD: albs_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - albs_network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: albs_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - albs_network
+
+volumes:
+  mysql_data:
+
+networks:
+  albs_network:
+    driver: bridge

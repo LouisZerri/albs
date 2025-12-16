@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - À la bonne station{% endblock %}
+
+{% block body %}
+<div class="text-center min-h-[600px]">
+    {# Hero Section #}
+    <div class="mb-12">
+        <div class="text-8xl mb-6">🚇</div>
+        <h1 class="text-5xl font-bold text-gray-900 mb-4">
+            À la bonne station
+        </h1>
+        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Explorez le métro parisien, marquez vos passages, collectionnez les badges et suivez votre progression à travers les 16 lignes !
+        </p>
+        
+        {% if not app.user %}
+            <div class="flex justify-center space-x-4">
+                <a href="{{ path('app_register') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-lg hover:shadow-xl">
+                    Commencer l'aventure
+                </a>
+                <a href="{{ path('app_login') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-lg text-lg transition duration-200">
+                    Se connecter
+                </a>
+            </div>
+        {% else %}
+            <div class="flex justify-center space-x-4">
+                <a href="{{ path('app_lines') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-200 shadow-lg hover:shadow-xl">
+                    Voir les lignes
+                </a>
+                <a href="{{ path('app_profile') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-lg text-lg transition duration-200">
+                    Mon profil
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    {# Features Section #}
+    <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-16">
+        <div class="bg-white p-6 rounded-xl shadow-md">
+            <div class="text-4xl mb-4">🗺️</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">16 lignes</h3>
+            <p class="text-gray-600">Explorez toutes les lignes du métro parisien, de la ligne 1 à la ligne 14</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-md">
+            <div class="text-4xl mb-4">✅</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">300+ stations</h3>
+            <p class="text-gray-600">Marquez vos passages et arrêts dans chaque station visitée</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-md">
+            <div class="text-4xl mb-4">🏆</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Badges</h3>
+            <p class="text-gray-600">Débloquez des badges en accomplissant des défis</p>
+        </div>
+    </div>
+
+    {# Stats Section (si connecté) #}
+    {% if app.user %}
+        <div class="mt-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-8 text-white">
+            <h2 class="text-3xl font-bold mb-4">Bonjour {{ app.user.username }} ! 👋</h2>
+            <p class="text-lg">Prêt à continuer votre exploration du métro parisien ?</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

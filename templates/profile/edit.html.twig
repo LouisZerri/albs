@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil - À la bonne station{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    {# Messages flash #}
+    {% for message in app.flashes('success') %}
+        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
+            <p class="text-sm text-green-700">{{ message }}</p>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+            <p class="text-sm text-red-700">{{ message }}</p>
+        </div>
+    {% endfor %}
+
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-white">Modifier mon profil</h1>
+                    <p class="text-blue-100 mt-1">Gérez vos informations personnelles</p>
+                </div>
+                <a href="{{ path('app_profile') }}" class="text-white hover:text-blue-100 text-sm font-medium">
+                    ← Retour au profil
+                </a>
+            </div>
+        </div>
+
+        <div class="p-8">
+            {# Photo de profil actuelle #}
+            <div class="mb-8 pb-8 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Photo de profil</h2>
+                <div class="flex items-center space-x-6">
+                    <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                        {% if user.avatar %}
+                            <img src="{{ asset('uploads/avatars/' ~ user.avatar) }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <span class="text-5xl">👤</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {% if user.avatar %}
+                            <form method="post" action="{{ path('app_profile_delete_avatar') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre photo de profil ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-avatar') }}">
+                                <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                    🗑️ Supprimer la photo
+                                </button>
+                            </form>
+                        {% else %}
+                            <p class="text-sm text-gray-600">Aucune photo de profil</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# Formulaire d'édition #}
+            {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+                <div>
+                    {{ form_label(form.username) }}
+                    {{ form_widget(form.username) }}
+                    <div class="text-red-600 text-xs mt-1">
+                        {{ form_errors(form.username) }}
+                    </div>
+                </div>
+
+                <div>
+                    {{ form_label(form.email) }}
+                    {{ form_widget(form.email) }}
+                    <div class="text-red-600 text-xs mt-1">
+                        {{ form_errors(form.email) }}
+                    </div>
+                </div>
+
+                <div>
+                    {{ form_label(form.avatarFile) }}
+                    {{ form_widget(form.avatarFile) }}
+                    <p class="text-xs text-gray-500 mt-1">JPG, PNG, GIF ou WEBP. Maximum 2 Mo.</p>
+                    <div class="text-red-600 text-xs mt-1">
+                        {{ form_errors(form.avatarFile) }}
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-6">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
+                        💾 Enregistrer les modifications
+                    </button>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {# Zone de danger - Suppression du compte #}
+    <div class="mt-8 bg-white rounded-xl shadow-lg overflow-hidden border-2 border-red-200">
+        <div class="bg-red-50 px-8 py-4 border-b border-red-200">
+            <h2 class="text-xl font-bold text-red-800">⚠️ Zone de danger</h2>
+        </div>
+        <div class="p-8">
+            <h3 class="font-bold text-gray-900 mb-2">Supprimer mon compte</h3>
+            <p class="text-sm text-gray-600 mb-4">
+                Cette action est irréversible. Toutes vos données (stations visitées, badges, progression) seront définitivement supprimées.
+            </p>
+            <form method="post" action="{{ path('app_profile_delete_account') }}" onsubmit="return confirm('⚠️ ATTENTION : Cette action est IRRÉVERSIBLE !\n\nToutes vos données seront définitivement supprimées :\n• Votre compte\n• Vos badges\n• Votre progression\n• Vos stations visitées\n\nÊtes-vous VRAIMENT sûr de vouloir supprimer votre compte ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete-account') }}">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
+                    🗑️ Supprimer définitivement mon compte
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

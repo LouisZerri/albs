@@ -1,0 +1,249 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon profil - À la bonne station
+{% endblock %}
+
+{% block body %}
+	<div
+		class="max-w-6xl mx-auto">
+		{# Notification de nouveaux badges (avec animation) #}
+		{% if newBadges|length > 0 %}
+			<div class="fixed top-20 right-6 z-50 max-w-md" data-controller="badge-notification">
+				<div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-2xl p-6 text-white transform transition-all duration-300">
+					<div class="flex items-start justify-between">
+						<div class="flex items-center space-x-4">
+							<span class="text-5xl animate-bounce">🎊</span>
+							<div>
+								<h3 class="text-xl font-bold mb-2">
+									Nouveau
+									{% if newBadges|length > 1 %}x
+									{% endif %}
+									badge
+									{% if newBadges|length > 1 %}s
+									{% endif %}
+									débloqué
+									{% if newBadges|length > 1 %}s
+									{% endif %}
+									!
+								</h3>
+								<div class="space-y-2">
+									{% for badge in newBadges %}
+										<div class="flex items-center space-x-2 bg-white bg-opacity-20 rounded-lg px-3 py-2">
+											<span class="text-2xl">{{ badge.icon }}</span>
+											<span class="font-medium">{{ badge.name }}</span>
+										</div>
+									{% endfor %}
+								</div>
+							</div>
+						</div>
+						<button data-action="click->badge-notification#close" class="text-white hover:text-gray-200 text-2xl leading-none">
+							×
+						</button>
+					</div>
+				</div>
+			</div>
+		{% endif %}
+
+		{# En-tête du profil #}
+		<div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg p-8 mb-6 text-white">
+			<div class="flex items-center justify-between mb-4">
+				<div class="flex items-center space-x-6">
+					<div class="w-24 h-24 rounded-full overflow-hidden bg-white flex items-center justify-center">
+						{% if user.avatar %}
+							<img src="{{ asset('uploads/avatars/' ~ user.avatar) }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+						{% else %}
+							<span class="text-5xl">👤</span>
+						{% endif %}
+					</div>
+					<div class="flex-grow">
+						<div class="flex items-center space-x-3 flex-wrap">
+							<h1 class="text-4xl font-bold">{{ user.username }}</h1>
+							{# Afficher uniquement les badges sélectionnés par l'utilisateur #}
+							{% set displayedBadgeIds = user.displayedBadges %}
+							{% for badgeStatus in badgesStatus %}
+								{% if badgeStatus.unlocked and badgeStatus.badge.id in displayedBadgeIds %}
+									<span class="text-3xl" title="{{ badgeStatus.badge.name }}">
+										{{ badgeStatus.badge.icon }}
+									</span>
+								{% endif %}
+							{% endfor %}
+						</div>
+						<p class="text-blue-100 mt-1">{{ user.email }}</p>
+						<p class="text-sm text-blue-100 mt-2">Membre depuis le
+							{{ user.createdAt|date('d/m/Y') }}</p>
+					</div>
+				</div>
+				<a href="{{ path('app_profile_edit') }}" class="bg-white text-blue-600 hover:bg-blue-50 font-medium px-6 py-2 rounded-lg transition duration-200 flex items-center space-x-2">
+					<span>✏️</span>
+					<span>Modifier mon profil</span>
+				</a>
+			</div>
+		</div>
+
+		{# Statistiques globales #}
+		<div class="grid md:grid-cols-3 gap-6 mb-8">
+			<div class="bg-white rounded-xl shadow-md p-6">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-gray-600 text-sm mb-1">Stations passées</p>
+						<p class="text-3xl font-bold text-blue-600">{{ totalPassed }}</p>
+					</div>
+					<div class="text-5xl">🚶</div>
+				</div>
+			</div>
+
+			<div class="bg-white rounded-xl shadow-md p-6">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-gray-600 text-sm mb-1">Stations visitées</p>
+						<p class="text-3xl font-bold text-green-600">{{ totalStopped }}</p>
+					</div>
+					<div class="text-5xl">✅</div>
+				</div>
+			</div>
+
+			<div class="bg-white rounded-xl shadow-md p-6">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-gray-600 text-sm mb-1">Badges débloqués</p>
+						<p class="text-3xl font-bold text-purple-600">{{ badgesStatus|filter(b => b.unlocked)|length }}</p>
+					</div>
+					<div class="text-5xl">🏆</div>
+				</div>
+			</div>
+		</div>
+
+		{# Section des badges #}
+		<div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+			<div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+				<h2 class="text-2xl font-bold text-gray-900">🏆 Mes badges</h2>
+				<p class="text-sm text-gray-600 mt-1">
+					{{ badgesStatus|filter(b => b.unlocked)|length }}
+					/
+					{{ badgesStatus|length }}
+					débloqués
+										                • Choisissez jusqu'à 3 badges à afficher sur votre profil
+				</p>
+			</div>
+
+			<div class="p-6">
+				<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+					{% for badgeStatus in badgesStatus %}
+						<div class="border-2 rounded-xl p-4 transition duration-200
+														                                {% if badgeStatus.unlocked %}
+														                                    border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50
+														                                {% else %}
+														                                    border-gray-200 bg-gray-50 opacity-75
+														                                {% endif %}" {% if badgeStatus.unlocked %} data-controller="badge-toggle" data-badge-toggle-badge-id-value="{{ badgeStatus.badge.id }}" data-badge-toggle-displayed-value="{{ badgeStatus.badge.id in user.displayedBadges ? 'true' : 'false' }}" {% endif %}>
+							<div class="flex items-start space-x-3">
+								<div class="text-4xl badge-icon {% if not badgeStatus.unlocked %}grayscale{% endif %}">
+									{{ badgeStatus.badge.icon }}
+								</div>
+								<div class="flex-grow">
+									<h3 class="font-bold text-gray-900 mb-1">{{ badgeStatus.badge.name }}</h3>
+									<p class="text-xs text-gray-600 mb-3">{{ badgeStatus.badge.description }}</p>
+
+									{% if badgeStatus.unlocked %}
+										<button data-action="click->badge-toggle#toggle" class="w-full text-white font-medium text-xs py-2 px-3 rounded-lg transition duration-200
+																								                                               {% if badgeStatus.badge.id in user.displayedBadges %}
+																								                                                   bg-green-600 hover:bg-green-700
+																								                                               {% else %}
+																								                                                   bg-blue-600 hover:bg-blue-700
+																								                                               {% endif %}">
+											{% if badgeStatus.badge.id in user.displayedBadges %}
+												✓ Affiché sur le profil
+											{% else %}
+												Afficher sur le profil
+											{% endif %}
+										</button>
+									{% else %}
+										<div class="mt-2">
+											<div class="flex justify-between text-xs mb-1">
+												<span class="text-gray-500">Progression</span>
+												<span class="font-medium text-gray-700">{{ badgeStatus.progress }}%</span>
+											</div>
+											<div class="bg-gray-200 rounded-full h-2">
+												<div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: {{ badgeStatus.progress }}%"></div>
+											</div>
+										</div>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+
+		{# Progression par ligne #}
+		<div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+			<div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+				<h2 class="text-2xl font-bold text-gray-900">Ma progression par ligne</h2>
+			</div>
+
+			<div class="p-6">
+				{% if lineStats|length > 0 %}
+					<div class="space-y-6">
+						{% for stat in lineStats %}
+							<div class="border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-gray-300 transition duration-200">
+								<div class="flex items-center justify-between mb-4">
+									<div class="flex items-center space-x-4">
+										<div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold" style="background-color: {{ stat.line.color }}; color: {{ stat.line.textColor }};">
+											{% if 'bis' in stat.line.number %}
+												<span class="text-4xl">{{ stat.line.number|replace({'bis': ''}) }}</span>
+												<span class="text-sm">bis</span>
+											{% else %}
+												<span class="text-4xl">{{ stat.line.number }}</span>
+											{% endif %}
+										</div>
+										<div>
+											<h3 class="font-bold text-gray-900 text-xl">Ligne
+												{{ stat.line.number }}</h3>
+											<p class="text-sm text-gray-600">{{ stat.total }}
+												stations</p>
+										</div>
+									</div>
+									<a href="{{ path('app_line_show', {id: stat.line.id}) }}" class="text-blue-600 hover:text-blue-800 text-base font-medium px-4 py-2 hover:bg-blue-50 rounded-lg transition duration-150">
+										Voir →
+									</a>
+								</div>
+
+								<div class="grid grid-cols-2 gap-6">
+									<div>
+										<div class="flex justify-between text-base mb-2">
+											<span class="text-gray-600 font-medium">Passé</span>
+											<span class="font-bold text-blue-600">{{ stat.passed }}/{{ stat.total }}</span>
+										</div>
+										<div class="bg-gray-200 rounded-full h-3">
+											<div class="bg-blue-600 h-3 rounded-full transition-all duration-500" style="width: {{ stat.passedPercentage }}%"></div>
+										</div>
+										<p class="text-sm text-gray-500 mt-1.5">{{ stat.passedPercentage }}%</p>
+									</div>
+
+									<div>
+										<div class="flex justify-between text-base mb-2">
+											<span class="text-gray-600 font-medium">Visité</span>
+											<span class="font-bold text-green-600">{{ stat.stopped }}/{{ stat.total }}</span>
+										</div>
+										<div class="bg-gray-200 rounded-full h-3">
+											<div class="bg-green-600 h-3 rounded-full transition-all duration-500" style="width: {{ stat.stoppedPercentage }}%"></div>
+										</div>
+										<p class="text-sm text-gray-500 mt-1.5">{{ stat.stoppedPercentage }}%</p>
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				{% else %}
+					<div class="text-center py-12">
+						<span class="text-6xl mb-4 block">🚇</span>
+						<p class="text-gray-600 text-lg">Vous n'avez pas encore commencé à explorer le métro.</p>
+						<a href="{{ path('app_lines') }}" class="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition duration-200">
+							Commencer l'aventure
+						</a>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
