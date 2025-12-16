@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header .emoji {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .content p {
+            margin: 0 0 15px 0;
+            color: #4b5563;
+        }
+        .features {
+            background: #f0fdf4;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .features li {
+            padding: 10px 0;
+            font-size: 15px;
+            color: #166534;
+        }
+        .footer {
+            background: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            margin: 5px 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
+        .auto-email-notice {
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            padding: 12px 20px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #075985;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="emoji">🎉</div>
+            <h1>Bienvenue à bord !</h1>
+        </div>
+        
+        <div class="content">
+            <p><strong>Bonjour {{ user.username }},</strong></p>
+            
+            <p>Félicitations ! Votre compte est maintenant <strong>activé</strong> !</p>
+            
+            <p>Vous pouvez maintenant profiter de toutes les fonctionnalités d'<strong>À la bonne station</strong> :</p>
+            
+            <div class="features">
+                <ul>
+                    <li>📍 <strong>Marquer les stations</strong> que vous visitez</li>
+                    <li>🏆 <strong>Débloquer des badges</strong> en accomplissant des défis</li>
+                    <li>📊 <strong>Suivre votre progression</strong> en temps réel</li>
+                    <li>🎯 <strong>Compléter les 16 lignes</strong> du métro parisien</li>
+                    <li>🌟 <strong>Partager vos exploits</strong> avec la communauté</li>
+                </ul>
+            </div>
+            
+            <p style="font-size: 18px; font-weight: 600; color: #10b981; text-align: center; margin-top: 30px;">
+                Bon voyage dans le métro parisien ! 💙
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p style="font-weight: 600;">© {{ 'now'|date('Y') }} À la bonne station</p>
+            <p>Tous droits réservés</p>
+            
+            <div class="auto-email-notice">
+                <strong>📧 Ceci est un email automatique.</strong><br>
+                Merci de ne pas répondre à ce message.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

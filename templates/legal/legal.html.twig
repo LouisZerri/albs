@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mentions Légales - À la bonne station{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto py-12 px-4">
+    <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+        <div class="text-center mb-10">
+            <span class="text-6xl mb-4 block">⚖️</span>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Mentions Légales</h1>
+            <p class="text-gray-600">Informations légales</p>
+        </div>
+
+        <div class="prose prose-lg max-w-none">
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">1. Éditeur du site</h2>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-4">
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>Nom du site :</strong> À la bonne station
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>URL :</strong> 
+                        <a href="https://alabonnestation.fr" class="text-blue-600 hover:text-blue-800 underline">
+                            https://alabonnestation.fr
+                        </a>
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>Propriétaire :</strong> Louis Zerri
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>Email :</strong> 
+                        <a href="mailto:contact@alabonnestation.fr" class="text-blue-600 hover:text-blue-800 underline">
+                            contact@alabonnestation.fr
+                        </a>
+                    </p>
+                    <p class="text-gray-700 leading-relaxed">
+                        <strong>Pays :</strong> France
+                    </p>
+                </div>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">2. Hébergement</h2>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-4">
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>Hébergeur :</strong> OVH
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>Raison sociale :</strong> OVH SAS
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>Siège social :</strong> 2 rue Kellermann - 59100 Roubaix - France
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>Téléphone :</strong> 1007
+                    </p>
+                    <p class="text-gray-700 leading-relaxed">
+                        <strong>Site web :</strong> 
+                        <a href="https://www.ovh.com" target="_blank" class="text-blue-600 hover:text-blue-800 underline">
+                            www.ovh.com
+                        </a>
+                    </p>
+                </div>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">3. Directeur de publication</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Le directeur de la publication du site est : <strong>Louis Zerri</strong>
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">4. Propriété intellectuelle</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    L'ensemble du contenu de ce site (textes, images, vidéos, logos, icônes, etc.) est la propriété exclusive de 
+                    <strong>À la bonne station</strong>, sauf mention contraire.
+                </p>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Toute reproduction, distribution, modification ou utilisation à des fins commerciales est strictement interdite 
+                    sans autorisation écrite préalable.
+                </p>
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg mb-4">
+                    <p class="text-yellow-900 leading-relaxed mb-3">
+                        <strong>⚠️ Note importante :</strong>
+                    </p>
+                    <p class="text-yellow-900 leading-relaxed">
+                        Les noms des stations de métro, les numéros de lignes et autres informations relatives au réseau RATP 
+                        sont la propriété de la RATP et sont utilisés à des fins informatives uniquement.
+                        <strong>À la bonne station</strong> n'est pas affilié à la RATP.
+                    </p>
+                </div>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">5. Données personnelles</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi Informatique et Libertés, 
+                    vous disposez d'un droit d'accès, de rectification et de suppression des données vous concernant.
+                </p>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Pour plus d'informations, consultez notre 
+                    <a href="{{ path('app_privacy') }}" class="text-blue-600 hover:text-blue-800 font-medium underline">
+                        Politique de Confidentialité
+                    </a>.
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">6. Cookies</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Ce site utilise uniquement des cookies techniques nécessaires au bon fonctionnement de l'application.
+                    Aucun cookie publicitaire ou de tracking n'est utilisé.
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">7. Limitation de responsabilité</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    <strong>À la bonne station</strong> s'efforce de fournir des informations exactes et à jour, 
+                    mais ne peut garantir l'exactitude, la précision ou l'exhaustivité des informations disponibles sur le site.
+                </p>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    L'utilisateur est seul responsable de l'utilisation qu'il fait des informations disponibles sur le site.
+                </p>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    <strong>À la bonne station</strong> ne saurait être tenu responsable :
+                </p>
+                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+                    <li>Des dommages directs ou indirects causés au matériel de l'utilisateur lors de l'accès au site</li>
+                    <li>De l'utilisation que les utilisateurs font du service</li>
+                    <li>Des interruptions de service</li>
+                    <li>Des désagréments liés aux déplacements dans le métro</li>
+                </ul>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">8. Liens hypertextes</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Le site peut contenir des liens hypertextes vers d'autres sites. 
+                    <strong>À la bonne station</strong> n'exerce aucun contrôle sur ces sites et décline toute responsabilité 
+                    quant à leur contenu.
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">9. Droit applicable</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Les présentes mentions légales sont soumises au droit français. 
+                    Tout litige relatif à l'utilisation du site sera de la compétence exclusive des tribunaux français.
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">10. Contact</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Pour toute question concernant ces mentions légales, vous pouvez nous contacter :
+                </p>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                    <p class="text-gray-700 leading-relaxed">
+                        📧 Email : 
+                        <a href="mailto:contact@alabonnestation.fr" class="text-blue-600 hover:text-blue-800 font-medium underline">
+                            contact@alabonnestation.fr
+                        </a>
+                    </p>
+                </div>
+            </section>
+
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-10">
+                <p class="text-sm text-gray-600 text-center">
+                    Dernière mise à jour : {{ 'now'|date('d/m/Y') }}
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-10 text-center">
+            <a href="{{ path('app_home') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Retour à l'accueil
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

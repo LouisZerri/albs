@@ -2,25 +2,26 @@
 
 namespace App\Controller;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-final class SecurityController extends AbstractController
+class SecurityController extends AbstractController
 {
     #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
-    {
-        // Si l'utilisateur est déjà connecté, rediriger vers la home
+    public function login(
+        AuthenticationUtils $authenticationUtils,
+        EntityManagerInterface $entityManager
+    ): Response {
+        // Si déjà connecté
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
         }
 
-        // Récupérer l'erreur de connexion s'il y en a une
+        // Erreur de connexion
         $error = $authenticationUtils->getLastAuthenticationError();
-        
-        // Dernier nom d'utilisateur entré
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [

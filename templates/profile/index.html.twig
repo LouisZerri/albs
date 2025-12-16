@@ -49,8 +49,8 @@
 			<div class="flex items-center justify-between mb-4">
 				<div class="flex items-center space-x-6">
 					<div class="w-24 h-24 rounded-full overflow-hidden bg-white flex items-center justify-center">
-						{% if user.avatar %}
-							<img src="{{ asset('uploads/avatars/' ~ user.avatar) }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+						{% if user.avatarUrl %}
+							<img src="{{ asset('uploads/avatars/' ~ user.avatarUrl) }}" alt="{{ user.username }}" class="w-full h-full object-cover">
 						{% else %}
 							<span class="text-5xl">👤</span>
 						{% endif %}

@@ -1,0 +1,273 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Politique de Confidentialité - À la bonne station{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto py-12 px-4">
+    <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+        <div class="text-center mb-10">
+            <span class="text-6xl mb-4 block">🔒</span>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Politique de Confidentialité</h1>
+            <p class="text-gray-600">Dernière mise à jour : {{ 'now'|date('d/m/Y') }}</p>
+        </div>
+
+        <div class="prose prose-lg max-w-none">
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Chez <strong>À la bonne station</strong>, nous prenons très au sérieux la protection de vos données personnelles. 
+                    Cette politique de confidentialité explique quelles données nous collectons, comment nous les utilisons, 
+                    et quels sont vos droits concernant ces données.
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">2. Responsable du traitement</h2>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-4">
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>Nom :</strong> À la bonne station
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        <strong>Email :</strong> 
+                        <a href="mailto:contact@alabonnestation.fr" class="text-blue-600 hover:text-blue-800 underline">
+                            contact@alabonnestation.fr
+                        </a>
+                    </p>
+                    <p class="text-gray-700 leading-relaxed">
+                        <strong>Adresse :</strong> France
+                    </p>
+                </div>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">3. Données collectées</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Nous collectons les informations suivantes lorsque vous utilisez notre service :
+                </p>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">3.1 Données d'inscription</h3>
+                    <ul class="list-disc pl-6 text-gray-700 space-y-2">
+                        <li><strong>Adresse email</strong> : Pour créer votre compte et vous envoyer des notifications</li>
+                        <li><strong>Pseudo</strong> : Pour vous identifier sur la plateforme</li>
+                        <li><strong>Mot de passe</strong> : Stocké de manière cryptée (hashé)</li>
+                        <li><strong>Photo de profil</strong> : Si vous choisissez d'en ajouter une (optionnel)</li>
+                    </ul>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">3.2 Données de progression</h3>
+                    <ul class="list-disc pl-6 text-gray-700 space-y-2">
+                        <li><strong>Stations visitées</strong> : Liste des stations que vous avez marquées comme visitées</li>
+                        <li><strong>Dates de visite</strong> : Date et heure de vos visites</li>
+                        <li><strong>Badges débloqués</strong> : Vos accomplissements dans l'application</li>
+                        <li><strong>Ligne favorite</strong> : Votre ligne de métro préférée (optionnel)</li>
+                    </ul>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">3.3 Données techniques</h3>
+                    <ul class="list-disc pl-6 text-gray-700 space-y-2">
+                        <li><strong>Adresse IP</strong> : Pour la sécurité et la prévention des abus</li>
+                        <li><strong>Type de navigateur</strong> : Pour optimiser l'affichage</li>
+                        <li><strong>Date de dernière connexion</strong> : Pour gérer votre session</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">4. Utilisation des données</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Nous utilisons vos données personnelles pour :
+                </p>
+                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+                    <li>Créer et gérer votre compte utilisateur</li>
+                    <li>Suivre votre progression dans le métro parisien</li>
+                    <li>Attribuer et afficher vos badges</li>
+                    <li>Vous envoyer des emails de vérification et de notification</li>
+                    <li>Améliorer nos services et l'expérience utilisateur</li>
+                    <li>Assurer la sécurité de la plateforme</li>
+                    <li>Respecter nos obligations légales</li>
+                </ul>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">5. Base légale du traitement</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Nous traitons vos données personnelles sur les bases légales suivantes :
+                </p>
+                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+                    <li><strong>Consentement</strong> : Vous acceptez nos conditions lors de l'inscription</li>
+                    <li><strong>Exécution du contrat</strong> : Pour vous fournir les services demandés</li>
+                    <li><strong>Intérêt légitime</strong> : Pour améliorer nos services et assurer la sécurité</li>
+                    <li><strong>Obligation légale</strong> : Pour respecter la législation en vigueur</li>
+                </ul>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">6. Conservation des données</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Nous conservons vos données personnelles :
+                </p>
+                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+                    <li><strong>Données de compte</strong> : Tant que votre compte est actif</li>
+                    <li><strong>Données de progression</strong> : Tant que votre compte existe</li>
+                    <li><strong>Logs de connexion</strong> : 12 mois maximum</li>
+                    <li><strong>Après suppression du compte</strong> : 30 jours (pour permettre une récupération), puis suppression définitive</li>
+                </ul>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">7. Partage des données</h2>
+                <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-r-lg mb-4">
+                    <p class="text-green-900 leading-relaxed mb-3">
+                        <strong>Nous ne vendons jamais vos données personnelles à des tiers.</strong>
+                    </p>
+                    <p class="text-green-900 leading-relaxed">
+                        Vos données ne sont partagées qu'avec :
+                    </p>
+                </div>
+                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+                    <li><strong>Hébergeur</strong> : OVH (France) - Pour stocker les données de l'application</li>
+                    <li><strong>Service d'emailing</strong> : OVH Zimbra - Pour envoyer les emails transactionnels</li>
+                    <li><strong>En cas d'obligation légale</strong> : Si requis par les autorités compétentes</li>
+                </ul>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">8. Sécurité des données</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Nous mettons en œuvre des mesures de sécurité appropriées pour protéger vos données :
+                </p>
+                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+                    <li><strong>Chiffrement HTTPS</strong> : Toutes les communications sont chiffrées</li>
+                    <li><strong>Mots de passe hashés</strong> : Vos mots de passe ne sont jamais stockés en clair</li>
+                    <li><strong>Accès restreint</strong> : Seuls les administrateurs autorisés ont accès aux données</li>
+                    <li><strong>Sauvegardes régulières</strong> : Pour éviter toute perte de données</li>
+                    <li><strong>Pare-feu et monitoring</strong> : Protection contre les intrusions</li>
+                </ul>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">9. Vos droits (RGPD)</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :
+                </p>
+
+                <div class="space-y-4 mb-4">
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="font-semibold text-gray-900 mb-1">✓ Droit d'accès</h4>
+                        <p class="text-gray-700 text-sm">Vous pouvez demander une copie de toutes les données que nous détenons sur vous.</p>
+                    </div>
+
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="font-semibold text-gray-900 mb-1">✓ Droit de rectification</h4>
+                        <p class="text-gray-700 text-sm">Vous pouvez modifier vos informations personnelles directement depuis votre profil.</p>
+                    </div>
+
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="font-semibold text-gray-900 mb-1">✓ Droit à l'effacement</h4>
+                        <p class="text-gray-700 text-sm">Vous pouvez supprimer votre compte et toutes vos données à tout moment.</p>
+                    </div>
+
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="font-semibold text-gray-900 mb-1">✓ Droit à la portabilité</h4>
+                        <p class="text-gray-700 text-sm">Vous pouvez demander vos données dans un format structuré et lisible.</p>
+                    </div>
+
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="font-semibold text-gray-900 mb-1">✓ Droit d'opposition</h4>
+                        <p class="text-gray-700 text-sm">Vous pouvez vous opposer au traitement de vos données à des fins de marketing.</p>
+                    </div>
+
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="font-semibold text-gray-900 mb-1">✓ Droit à la limitation</h4>
+                        <p class="text-gray-700 text-sm">Vous pouvez demander la limitation du traitement de vos données.</p>
+                    </div>
+                </div>
+
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Pour exercer ces droits, contactez-nous à : 
+                    <a href="mailto:contact@alabonnestation.fr" class="text-blue-600 hover:text-blue-800 font-medium underline">
+                        contact@alabonnestation.fr
+                    </a>
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">10. Cookies</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Notre site utilise uniquement des cookies essentiels au fonctionnement de l'application :
+                </p>
+                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+                    <li><strong>Cookie de session</strong> : Pour maintenir votre connexion</li>
+                    <li><strong>Cookie "Remember Me"</strong> : Si vous cochez "Se souvenir de moi" (7 jours)</li>
+                    <li><strong>Cookie CSRF</strong> : Pour la sécurité des formulaires</li>
+                </ul>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Nous n'utilisons <strong>aucun cookie publicitaire ou de tracking tiers</strong>.
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">11. Mineurs</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Notre service est accessible aux personnes âgées de 13 ans et plus. 
+                    Si vous avez moins de 18 ans, nous vous encourageons à utiliser le service avec l'accord de vos parents.
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">12. Modifications de la politique</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Nous nous réservons le droit de modifier cette politique de confidentialité à tout moment. 
+                    En cas de modification substantielle, nous vous en informerons par email ou via une notification sur le site.
+                </p>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">13. Contact et réclamation</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Pour toute question concernant cette politique de confidentialité ou l'utilisation de vos données :
+                </p>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-4">
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        📧 Email : 
+                        <a href="mailto:contact@alabonnestation.fr" class="text-blue-600 hover:text-blue-800 font-medium underline">
+                            contact@alabonnestation.fr
+                        </a>
+                    </p>
+                </div>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Si vous estimez que vos droits ne sont pas respectés, vous pouvez également déposer une réclamation auprès de la 
+                    <strong>CNIL</strong> (Commission Nationale de l'Informatique et des Libertés) :
+                </p>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-2">
+                        🏛️ CNIL - 3 Place de Fontenoy - TSA 80715 - 75334 PARIS CEDEX 07
+                    </p>
+                    <p class="text-gray-700 leading-relaxed">
+                        🌐 <a href="https://www.cnil.fr" target="_blank" class="text-blue-600 hover:text-blue-800 underline">www.cnil.fr</a>
+                    </p>
+                </div>
+            </section>
+
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg mt-10">
+                <p class="text-blue-900 leading-relaxed">
+                    <strong>💙 Notre engagement :</strong> Nous nous engageons à protéger vos données personnelles et à respecter 
+                    votre vie privée. Votre confiance est essentielle pour nous.
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-10 text-center">
+            <a href="{{ path('app_home') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Retour à l'accueil
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

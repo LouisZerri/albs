@@ -1,0 +1,32 @@
+<footer class="bg-gray-800 text-white mt-auto">
+    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div class="text-center md:text-left">
+                <p class="text-sm text-gray-300">
+                    🚇 <strong>À la bonne station</strong> - {{ 'now'|date('Y') }}
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
+                    Explorez le métro parisien avec passion
+                </p>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-4 md:gap-6 text-sm">
+                <a href="{{ path('app_terms') }}" class="text-gray-300 hover:text-white transition">
+                    Conditions d'Utilisation
+                </a>
+                <a href="{{ path('app_privacy') }}" class="text-gray-300 hover:text-white transition">
+                    Politique de Confidentialité
+                </a>
+                <a href="{{ path('app_legal') }}" class="text-gray-300 hover:text-white transition">
+                    Mentions Légales
+                </a>
+            </div>
+        </div>
+        
+        <div class="mt-6 pt-6 border-t border-gray-700 text-center">
+            <p class="text-xs text-gray-400">
+                Non affilié à la RATP - Application ludique et communautaire
+            </p>
+        </div>
+    </div>
+</footer>

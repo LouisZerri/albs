@@ -22,17 +22,6 @@
                 </div>
             {% endif %}
 
-            {% if app.request.hasPreviousSession %}
-                {% for message in app.flashes('success') %}
-                    <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg">
-                        <div class="flex items-start">
-                            <span class="text-green-500 text-xl mr-3">✓</span>
-                            <p class="text-sm text-green-700">{{ message }}</p>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% endif %}
-
             <form method="post" action="{{ path('app_login') }}">
                 <div class="space-y-6">
                     <div>
@@ -67,24 +56,31 @@
                         >
                     </div>
 
-                    <div class="flex items-center">
-                        <input 
-                            type="checkbox" 
-                            id="remember_me" 
-                            name="_remember_me"
-                            value="on"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        >
-                        <label for="remember_me" class="ml-2 text-sm text-gray-700">
-                            Se souvenir de moi
-                        </label>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input 
+                                type="checkbox" 
+                                id="remember_me" 
+                                name="_remember_me"
+                                value="on"
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            >
+                            <label for="remember_me" class="ml-2 text-sm text-gray-700">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+                        <div>
+                            <a href="{{ path('app_forgot_password') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                Mot de passe oublié ?
+                            </a>
+                        </div>
                     </div>
 
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
                     <button 
                         type="submit" 
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg cursor-pointer"
                     >
                         Se connecter
                     </button>

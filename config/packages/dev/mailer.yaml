@@ -1,0 +1,13 @@
+framework:
+    mailer:
+        dsn: '%env(MAILER_DSN)%'
+        # Log tous les emails en dev
+        envelope:
+            sender: 'no-reply@alabonnestation.fr'
+
+monolog:
+    handlers:
+        mailer:
+            type: stream
+            path: "%kernel.logs_dir%/mailer.log"
+            level: debug
