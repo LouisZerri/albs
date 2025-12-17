@@ -161,36 +161,59 @@ class LineController extends AbstractController
         if ($type === 'passed') {
             $userStation->setPassed($checked);
 
-            // Enregistrer la date de la première fois qu'on passe
             if ($checked && $userStation->getFirstPassedAt() === null) {
                 $userStation->setFirstPassedAt($now);
+            }
+
+            // RÈGLE : Si on décoche Passé, décocher automatiquement Visité
+            if (!$checked) {
+                $userStation->setStopped(false);
             }
         } elseif ($type === 'stopped') {
             $userStation->setStopped($checked);
 
-            // Enregistrer la date de la première fois qu'on s'arrête
             if ($checked && $userStation->getFirstStoppedAt() === null) {
                 $userStation->setFirstStoppedAt($now);
             }
+
+            // RÈGLE : Si on coche Visité, cocher automatiquement Passé
+            if ($checked) {
+                $userStation->setPassed(true);
+                if ($userStation->getFirstPassedAt() === null) {
+                    $userStation->setFirstPassedAt($now);
+                }
+            }
         }
 
-        // Mettre à jour la date de modification
         $userStation->setUpdatedAt($now);
-
         $em->persist($userStation);
         $em->flush();
 
         // Vérifier et attribuer de nouveaux badges
         $newBadges = $badgeService->checkAndAwardBadges($user);
 
-        // Préparer les données des nouveaux badges pour le JSON
+        // Stocker les badges dans la session pour les afficher après le reload
+        if (!empty($newBadges)) {
+            $session = $request->getSession();
+            $pendingBadges = $session->get('pending_badges', []);
+
+            foreach ($newBadges as $badge) {
+                $pendingBadges[] = [
+                    'icon' => $badge->getIcon(),
+                    'name' => $badge->getName(),
+                ];
+            }
+
+            $session->set('pending_badges', $pendingBadges);
+        }
+
+        // Préparer les données pour le JSON
         $badgesData = [];
         foreach ($newBadges as $badge) {
             $badgesData[] = [
                 'id' => $badge->getId(),
                 'name' => $badge->getName(),
                 'icon' => $badge->getIcon(),
-                'description' => $badge->getDescription(),
             ];
         }
 

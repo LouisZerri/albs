@@ -6,76 +6,132 @@ export default class extends Controller {
     connect() {
         this.stationId = this.element.dataset.stationId;
         this.lineId = this.element.dataset.stationLineId;
+        this.isProcessing = false;
         console.log('Station controller connected - Station:', this.stationId, 'Line:', this.lineId);
     }
 
     async togglePassed(event) {
         const checkbox = event.currentTarget;
+
+        // Empêcher si déjà en cours (n'importe quelle requête)
+        if (this.isProcessing) {
+            event.preventDefault();
+            checkbox.checked = !checkbox.checked;
+            return;
+        }
+
         const isChecked = checkbox.checked;
 
-        console.log('Toggle passed - Station:', this.stationId, 'Checked:', isChecked);
-        await this.updateStation('passed', isChecked, checkbox);
+        // Bloquer les deux checkboxes
+        this.disableCheckboxes();
+
+        try {
+            // RÈGLE : Si on décoche Passé, décocher automatiquement Visité
+            if (!isChecked && this.hasStoppedCheckboxTarget && this.stoppedCheckboxTarget.checked) {
+                this.stoppedCheckboxTarget.checked = false;
+                // Mettre à jour Visité d'abord
+                await this.sendUpdate('stopped', false);
+            }
+
+            // Puis mettre à jour Passé
+            await this.sendUpdate('passed', isChecked);
+
+            // Animation
+            this.animateSuccess(checkbox);
+
+            // Recharger après un court délai
+            setTimeout(() => {
+                window.location.reload();
+            }, 200);
+
+        } catch (error) {
+            console.error('Error:', error);
+            checkbox.checked = !isChecked;
+            alert('Une erreur est survenue. Veuillez réessayer.');
+            this.enableCheckboxes();
+        }
     }
 
     async toggleStopped(event) {
         const checkbox = event.currentTarget;
+
+        // Empêcher si déjà en cours
+        if (this.isProcessing) {
+            event.preventDefault();
+            checkbox.checked = !checkbox.checked;
+            return;
+        }
+
         const isChecked = checkbox.checked;
 
-        console.log('Toggle stopped - Station:', this.stationId, 'Checked:', isChecked);
-        await this.updateStation('stopped', isChecked, checkbox);
-    }
-
-    async updateStation(type, checked, checkbox) {
-        const url = `/lines/${this.lineId}/station/${this.stationId}/toggle`;
-        console.log('Fetching URL:', url);
+        // Bloquer les deux checkboxes
+        this.disableCheckboxes();
 
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    type: type,
-                    checked: checked 
-                })
-            });
-
-            console.log('Response status:', response.status);
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Server error:', response.status, errorText);
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // RÈGLE : Si on coche Visité, cocher automatiquement Passé
+            if (isChecked && this.hasPassedCheckboxTarget && !this.passedCheckboxTarget.checked) {
+                this.passedCheckboxTarget.checked = true;
+                // Mettre à jour Passé d'abord
+                await this.sendUpdate('passed', true);
             }
 
-            const data = await response.json();
-            console.log('Success response:', data);
-            
-            // Animation de confirmation
+            // Puis mettre à jour Visité
+            await this.sendUpdate('stopped', isChecked);
+
+            // Animation
             this.animateSuccess(checkbox);
 
-            // Afficher notification de nouveaux badges SI il y en a
-            if (data.newBadges && data.newBadges.length > 0) {
-                console.log('New badges unlocked:', data.newBadges);
-                this.showBadgeNotification(data.newBadges);
-                
-                // Recharger après 2 secondes pour laisser voir la notification
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
-            } else {
-                // Pas de nouveau badge, recharger après 300ms
-                setTimeout(() => {
-                    window.location.reload();
-                }, 300);
-            }
+            // Recharger après un court délai
+            setTimeout(() => {
+                window.location.reload();
+            }, 200);
 
         } catch (error) {
-            console.error('Error updating station:', error);
-            // Remettre la checkbox dans son état précédent
-            checkbox.checked = !checked;
+            console.error('Error:', error);
+            checkbox.checked = !isChecked;
             alert('Une erreur est survenue. Veuillez réessayer.');
+            this.enableCheckboxes();
+        }
+    }
+
+    async sendUpdate(type, checked) {
+        const url = `/lines/${this.lineId}/station/${this.stationId}/toggle`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                type: type,
+                checked: checked
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    }
+
+    disableCheckboxes() {
+        this.isProcessing = true;
+        if (this.hasPassedCheckboxTarget) {
+            this.passedCheckboxTarget.disabled = true;
+        }
+        if (this.hasStoppedCheckboxTarget) {
+            this.stoppedCheckboxTarget.disabled = true;
+        }
+    }
+
+    enableCheckboxes() {
+        this.isProcessing = false;
+        if (this.hasPassedCheckboxTarget) {
+            this.passedCheckboxTarget.disabled = false;
+        }
+        if (this.hasStoppedCheckboxTarget) {
+            this.stoppedCheckboxTarget.disabled = false;
         }
     }
 
@@ -85,52 +141,5 @@ export default class extends Controller {
         setTimeout(() => {
             parent.classList.remove('scale-110');
         }, 200);
-    }
-
-    showBadgeNotification(badges) {
-        // Supprimer les anciennes notifications
-        document.querySelectorAll('.badge-notification').forEach(n => n.remove());
-
-        const notification = document.createElement('div');
-        notification.className = 'badge-notification';
-        notification.style.cssText = `
-            position: fixed;
-            top: 5rem;
-            right: 1.5rem;
-            z-index: 9999;
-            max-width: 20rem;
-            opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.3s ease-out;
-        `;
-        
-        const badgesList = badges.map(b => 
-            `<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem;">
-                <span style="font-size: 2rem;">${b.icon}</span>
-                <span style="font-weight: 600; font-size: 1.125rem;">${b.name}</span>
-            </div>`
-        ).join('');
-        
-        notification.innerHTML = `
-            <div style="background: linear-gradient(to right, #FBBF24, #F59E0B); border-radius: 0.75rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2); padding: 1.25rem; color: white; position: relative;">
-                <p style="font-size: 1rem; font-weight: 500; margin: 0;">Vous avez débloqué un nouveau badge !</p>
-                ${badgesList}
-                <button onclick="this.closest('.badge-notification').remove()" 
-                        style="position: absolute; top: 0.5rem; right: 0.5rem; color: white; font-size: 1.5rem; background: none; border: none; cursor: pointer; padding: 0.25rem; line-height: 1;">×</button>
-            </div>
-        `;
-
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.opacity = '1';
-            notification.style.transform = 'translateX(0)';
-        }, 10);
-
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => notification.remove(), 300);
-        }, 5000);
     }
 }

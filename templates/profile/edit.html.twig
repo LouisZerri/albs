@@ -36,14 +36,14 @@
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Photo de profil</h2>
                 <div class="flex items-center space-x-6">
                     <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                        {% if user.avatar %}
-                            <img src="{{ asset('uploads/avatars/' ~ user.avatar) }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                        {% if user.avatarUrl %}
+                            <img src="{{ asset('uploads/avatars/' ~ user.avatarUrl) }}" alt="{{ user.username }}" class="w-full h-full object-cover">
                         {% else %}
                             <span class="text-5xl">👤</span>
                         {% endif %}
                     </div>
                     <div>
-                        {% if user.avatar %}
+                        {% if user.avatarUrl %}
                             <form method="post" action="{{ path('app_profile_delete_avatar') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre photo de profil ?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete-avatar') }}">
                                 <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium">
