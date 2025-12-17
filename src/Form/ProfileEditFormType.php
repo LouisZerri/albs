@@ -3,9 +3,12 @@
 namespace App\Form;
 
 use App\Entity\User;
+use App\Validator\Constraints\NoInappropriateWords;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -34,6 +37,7 @@ class ProfileEditFormType extends AbstractType
                         'minMessage' => 'Votre pseudo doit contenir au moins {{ limit }} caractères',
                         'max' => 100,
                     ]),
+                    new NoInappropriateWords(),  // ← TON VALIDATEUR CUSTOM
                 ],
             ])
             ->add('email', EmailType::class, [
@@ -49,6 +53,41 @@ class ProfileEditFormType extends AbstractType
                     ]),
                 ],
             ])
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'mapped' => false,
+                'required' => false,
+                'first_options' => [
+                    'label' => 'Nouveau mot de passe',
+                    'label_attr' => ['class' => 'block text-sm font-medium text-gray-700 mb-2'],
+                    'attr' => [
+                        'class' => 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                        'placeholder' => 'Laisser vide pour ne pas changer',
+                        'autocomplete' => 'new-password',
+                        'x-model' => 'password',
+                        '@input' => 'checkPassword(); checkPasswordMatch()',
+                    ],
+                ],
+                'second_options' => [
+                    'label' => 'Confirmer le mot de passe',
+                    'label_attr' => ['class' => 'block text-sm font-medium text-gray-700 mb-2'],
+                    'attr' => [
+                        'class' => 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+                        'placeholder' => 'Confirmer le mot de passe',
+                        'autocomplete' => 'new-password',
+                        'x-model' => 'passwordConfirm',
+                        '@input' => 'checkPasswordMatch()',
+                    ],
+                ],
+                'invalid_message' => 'Les mots de passe ne correspondent pas',
+                'constraints' => [
+                    new Length([
+                        'min' => 6,
+                        'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères',
+                        'max' => 4096,
+                    ]),
+                ],
+            ])
             ->add('avatarFile', FileType::class, [
                 'label' => 'Photo de profil',
                 'label_attr' => ['class' => 'block text-sm font-medium text-gray-700 mb-2'],
@@ -60,7 +99,7 @@ class ProfileEditFormType extends AbstractType
                 ],
                 'constraints' => [
                     new File([
-                        'maxSize' => '2M',
+                        'maxSize' => '10M',
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/jpg',
@@ -69,7 +108,7 @@ class ProfileEditFormType extends AbstractType
                             'image/webp',
                         ],
                         'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, PNG, GIF, WEBP)',
-                        'maxSizeMessage' => 'L\'image ne doit pas dépasser 2 Mo',
+                        'maxSizeMessage' => 'L\'image ne doit pas dépasser 10 Mo',
                     ])
                 ],
             ])

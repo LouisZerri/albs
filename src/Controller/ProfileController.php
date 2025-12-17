@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -141,7 +142,8 @@ class ProfileController extends AbstractController
     public function edit(
         Request $request,
         EntityManagerInterface $entityManager,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        UserPasswordHasherInterface $passwordHasher
     ): Response {
 
         /** @var \App\Entity\User|null $user */
@@ -151,43 +153,69 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
+        // Sauvegarder les valeurs originales AVANT le traitement du formulaire
+        $originalUsername = $user->getUsername();
+        $originalEmail = $user->getEmail();
+
         $form = $this->createForm(ProfileEditFormType::class, $user);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Gérer l'upload de l'avatar
-            $avatarFile = $form->get('avatarFile')->getData();
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                // Le formulaire est valide, on peut sauvegarder
 
-            if ($avatarFile) {
-                $originalFilename = pathinfo($avatarFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $avatarFile->guessExtension();
-
-                try {
-                    $avatarFile->move(
-                        $this->getParameter('kernel.project_dir') . '/public/uploads/avatars',
-                        $newFilename
-                    );
-
-                    // Supprimer l'ancien avatar s'il existe
-                    if ($user->getAvatarUrl()) {
-                        $oldAvatarPath = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars/' . $user->getAvatarUrl();
-                        if (file_exists($oldAvatarPath)) {
-                            unlink($oldAvatarPath);
-                        }
-                    }
-
-                    $user->setAvatarUrl($newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'image.');
+                // Gérer le changement de mot de passe
+                $plainPassword = $form->get('plainPassword')->getData();
+                if ($plainPassword) {
+                    $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                    $user->setPassword($hashedPassword);
                 }
+
+                // Gérer l'upload de l'avatar
+                $avatarFile = $form->get('avatarFile')->getData();
+
+                if ($avatarFile) {
+                    $originalFilename = pathinfo($avatarFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $avatarFile->guessExtension();
+
+                    try {
+                        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars';
+
+                        // Créer le dossier s'il n'existe pas
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+
+                        $avatarFile->move($uploadDir, $newFilename);
+
+                        // Supprimer l'ancien avatar s'il existe
+                        if ($user->getAvatarUrl()) {
+                            $oldAvatarPath = $uploadDir . '/' . $user->getAvatarUrl();
+                            if (file_exists($oldAvatarPath)) {
+                                unlink($oldAvatarPath);
+                            }
+                        }
+
+                        $user->setAvatarUrl($newFilename);
+                    } catch (FileException $e) {
+                        $this->addFlash('error', 'Erreur lors de l\'upload : ' . $e->getMessage());
+                    }
+                }
+
+                $entityManager->flush();
+
+                $this->addFlash('success', '✓ Votre profil a été mis à jour avec succès !');
+
+                return $this->redirectToRoute('app_profile');
+            } else {
+                // Le formulaire n'est PAS valide, on restaure les valeurs originales
+                $user->setUsername($originalUsername);
+                $user->setEmail($originalEmail);
+
+                // Ajouter un message d'erreur général
+                $this->addFlash('error', 'Veuillez corriger les erreurs dans le formulaire.');
             }
-
-            $entityManager->flush();
-
-            $this->addFlash('success', '✓ Votre profil a été mis à jour avec succès !');
-
-            return $this->redirectToRoute('app_profile');
         }
 
         return $this->render('profile/edit.html.twig', [
@@ -334,12 +362,12 @@ class ProfileController extends AbstractController
                 $stoppedAt = $userStation->getFirstStoppedAt();
                 if ($stoppedAt) {
                     $hour = (int) $stoppedAt->format('H');
-                    
+
                     // Oiseau de nuit : 22h-05h59
                     if (isset($criteria['night_visit']) && (($hour >= 22 && $hour <= 23) || ($hour >= 0 && $hour <= 5))) {
                         return 100;
                     }
-                    
+
                     // Lève-tôt : 06h-08h59
                     if (isset($criteria['early_visit']) && ($hour >= 6 && $hour <= 8)) {
                         return 100;

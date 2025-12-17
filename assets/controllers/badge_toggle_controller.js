@@ -8,11 +8,15 @@ export default class extends Controller {
 
     async toggle() {
         const button = this.element.querySelector('button');
-        const originalText = button.textContent;
         
-        // Désactiver le bouton pendant la requête
-        button.disabled = true;
-        button.textContent = 'Chargement...';
+        // Empêcher les clics multiples sans désactiver le bouton
+        if (this.isProcessing) {
+            return;
+        }
+        this.isProcessing = true;
+        
+        // Changer le curseur pendant le traitement
+        button.style.cursor = 'wait';
 
         try {
             const response = await fetch(`/badges/toggle/${this.badgeIdValue}`, {
@@ -25,64 +29,77 @@ export default class extends Controller {
             const data = await response.json();
 
             if (data.success) {
+                // Mettre à jour l'état
                 this.displayedValue = data.displayed;
-                this.updateUI();
+                
+                // Mettre à jour le bouton
+                this.updateButton(button, data.displayed);
                 
                 // Mettre à jour le header du profil en temps réel
                 this.updateProfileHeader(data.displayed);
                 
-                // Afficher une notification de succès
-                this.showSuccessNotification(data.displayed);
+                // Afficher un toast
+                this.showToast(data.displayed);
             } else if (data.error) {
-                alert(data.error);
-                button.textContent = originalText;
+                this.showErrorToast(data.error);
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Une erreur est survenue. Veuillez réessayer.');
-            button.textContent = originalText;
+            this.showErrorToast('Une erreur est survenue. Veuillez réessayer.');
         } finally {
-            button.disabled = false;
+            this.isProcessing = false;
+            button.style.cursor = 'pointer';
         }
     }
 
-    updateUI() {
-        const button = this.element.querySelector('button');
-        const badgeIcon = this.element.querySelector('.badge-icon');
-
-        if (this.displayedValue) {
-            button.textContent = '✓ Affiché sur le profil';
-            button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            button.classList.add('bg-green-600', 'hover:bg-green-700');
-            if (badgeIcon) {
-                badgeIcon.classList.remove('grayscale');
-            }
+    updateButton(button, isDisplayed) {
+        // Vider le contenu du bouton
+        button.innerHTML = '';
+        
+        // S'assurer que le curseur reste pointer
+        button.style.cursor = 'pointer';
+        
+        // Créer les spans pour l'icône et le texte
+        const iconSpan = document.createElement('span');
+        const textSpan = document.createElement('span');
+        
+        if (isDisplayed) {
+            iconSpan.textContent = '✓';
+            textSpan.textContent = 'Affiché';
+            button.className = 'w-full font-semibold text-sm py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg';
         } else {
-            button.textContent = 'Afficher sur le profil';
-            button.classList.remove('bg-green-600', 'hover:bg-green-700');
-            button.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            iconSpan.textContent = '+';
+            textSpan.textContent = 'Afficher';
+            button.className = 'w-full font-semibold text-sm py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg';
         }
+        
+        button.appendChild(iconSpan);
+        button.appendChild(textSpan);
     }
 
     updateProfileHeader(isDisplayed) {
-        // Récupérer le badge (icon + name) depuis l'élément parent
+        // Récupérer l'icône et le nom du badge
         const badgeCard = this.element;
-        const badgeIcon = badgeCard.querySelector('.text-4xl.badge-icon');
+        const badgeIcon = badgeCard.querySelector('.text-5xl');
         const badgeName = badgeCard.querySelector('.font-bold.text-gray-900');
         
-        if (!badgeIcon || !badgeName) return;
+        if (!badgeIcon || !badgeName) {
+            console.error('Badge icon ou name non trouvé');
+            return;
+        }
 
         const icon = badgeIcon.textContent.trim();
         const name = badgeName.textContent.trim();
 
-        // Trouver le header du profil (là où sont affichés les badges)
-        const profileHeader = document.querySelector('.bg-gradient-to-r.from-blue-500.to-purple-600');
-        if (!profileHeader) return;
+        // Trouver le container des badges dans le header
+        const badgeContainer = document.querySelector('.bg-gradient-to-br.from-blue-600 .flex.space-x-1');
+        
+        if (!badgeContainer) {
+            console.error('Badge container non trouvé dans le header');
+            return;
+        }
 
-        const badgeContainer = profileHeader.querySelector('.flex.items-center.space-x-3.flex-wrap');
-        if (!badgeContainer) return;
-
-        // Chercher si le badge existe déjà dans le header
+        // Chercher si le badge existe déjà
         const existingBadge = Array.from(badgeContainer.querySelectorAll('span[title]')).find(
             span => span.getAttribute('title') === name
         );
@@ -91,20 +108,29 @@ export default class extends Controller {
             // Ajouter le badge s'il n'existe pas
             if (!existingBadge) {
                 const newBadge = document.createElement('span');
-                newBadge.className = 'text-3xl animate-bounce-in';
+                newBadge.className = 'text-3xl hover:scale-125 transition-transform cursor-help';
                 newBadge.title = name;
                 newBadge.textContent = icon;
+                
+                // Animation d'apparition
+                newBadge.style.opacity = '0';
+                newBadge.style.transform = 'scale(0)';
                 badgeContainer.appendChild(newBadge);
-
-                // Retirer l'animation après qu'elle soit terminée
+                
+                // Trigger animation
                 setTimeout(() => {
-                    newBadge.classList.remove('animate-bounce-in');
-                }, 500);
+                    newBadge.style.transition = 'all 0.3s ease-out';
+                    newBadge.style.opacity = '1';
+                    newBadge.style.transform = 'scale(1)';
+                }, 10);
             }
         } else {
-            // Retirer le badge
+            // Retirer le badge avec animation
             if (existingBadge) {
-                existingBadge.classList.add('animate-fade-out');
+                existingBadge.style.transition = 'all 0.3s ease-out';
+                existingBadge.style.opacity = '0';
+                existingBadge.style.transform = 'scale(0)';
+                
                 setTimeout(() => {
                     existingBadge.remove();
                 }, 300);
@@ -112,55 +138,118 @@ export default class extends Controller {
         }
     }
 
-    showSuccessNotification(isDisplayed) {
-        // Supprimer les anciennes notifications
-        document.querySelectorAll('.badge-success-notification').forEach(n => n.remove());
-
-        const notification = document.createElement('div');
-        notification.className = 'badge-success-notification';
-        notification.style.cssText = `
-            position: fixed;
-            top: 5rem;
-            right: 1.5rem;
-            z-index: 9999;
-            background: ${isDisplayed ? 'linear-gradient(to right, #10B981, #059669)' : 'linear-gradient(to right, #6B7280, #4B5563)'};
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
+    showToast(isDisplayed) {
+        // Créer un toast comme dans _toast.html.twig
+        const toastContainer = document.createElement('div');
+        toastContainer.style.cssText = 'position: fixed; top: 80px; right: 16px; z-index: 999999; pointer-events: none;';
+        
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            max-width: 384px;
+            width: 384px;
+            margin-bottom: 16px;
+            pointer-events: auto;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
             opacity: 0;
             transform: translateX(100%);
             transition: all 0.3s ease-out;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
         `;
-
-        const icon = document.createElement('span');
-        icon.style.cssText = 'font-size: 1.5rem;';
-        icon.textContent = isDisplayed ? '✓' : '✕';
-
-        const text = document.createElement('span');
-        text.style.cssText = 'font-weight: 500;';
-        text.textContent = isDisplayed 
-            ? 'Badge ajouté à votre profil' 
-            : 'Badge retiré de votre profil';
-
-        notification.appendChild(icon);
-        notification.appendChild(text);
-        document.body.appendChild(notification);
-
+        
+        const bgColor = isDisplayed 
+            ? 'background: #f0fdf4; border-left: 4px solid #22c55e;'
+            : 'background: #eff6ff; border-left: 4px solid #3b82f6;';
+        
+        toast.innerHTML = `
+            <div style="padding: 16px; ${bgColor}">
+                <div style="display: flex; align-items: center;">
+                    <div style="flex-shrink: 0; line-height: 1;">
+                        <span style="font-size: 24px; display: block;">${isDisplayed ? '✅' : 'ℹ️'}</span>
+                    </div>
+                    <div style="margin-left: 12px; flex: 1; min-width: 0;">
+                        <p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.5; color: ${isDisplayed ? '#166534' : '#1e40af'};">
+                            ${isDisplayed ? 'Badge ajouté à votre profil' : 'Badge retiré de votre profil'}
+                        </p>
+                    </div>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-left: 16px; flex-shrink: 0; color: #9ca3af; background: none; border: none; cursor: pointer; padding: 0;">
+                        <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        toastContainer.appendChild(toast);
+        document.body.appendChild(toastContainer);
+        
         // Animation d'entrée
         setTimeout(() => {
-            notification.style.opacity = '1';
-            notification.style.transform = 'translateX(0)';
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
         }, 10);
-
-        // Auto-fermeture après 3 secondes
+        
+        // Auto-fermeture après 5 secondes
         setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => toastContainer.remove(), 300);
+        }, 5000);
+    }
+
+    showErrorToast(message) {
+        const toastContainer = document.createElement('div');
+        toastContainer.style.cssText = 'position: fixed; top: 80px; right: 16px; z-index: 999999; pointer-events: none;';
+        
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            max-width: 384px;
+            width: 384px;
+            margin-bottom: 16px;
+            pointer-events: auto;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease-out;
+        `;
+        
+        toast.innerHTML = `
+            <div style="padding: 16px; background: #fef2f2; border-left: 4px solid #ef4444;">
+                <div style="display: flex; align-items: center;">
+                    <div style="flex-shrink: 0; line-height: 1;">
+                        <span style="font-size: 24px; display: block;">❌</span>
+                    </div>
+                    <div style="margin-left: 12px; flex: 1; min-width: 0;">
+                        <p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.5; color: #991b1b;">
+                            ${message}
+                        </p>
+                    </div>
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="margin-left: 16px; flex-shrink: 0; color: #9ca3af; background: none; border: none; cursor: pointer; padding: 0;">
+                        <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        toastContainer.appendChild(toast);
+        document.body.appendChild(toastContainer);
+        
+        // Animation d'entrée
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(0)';
+        }, 10);
+        
+        // Auto-fermeture après 5 secondes
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => toastContainer.remove(), 300);
+        }, 5000);
     }
 }
