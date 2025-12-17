@@ -98,22 +98,22 @@ class BadgeFixtures extends Fixture
             
             // Badges spéciaux temporels
             [
-                'name' => 'Noctambule',
-                'description' => 'Vous avez visité une station après minuit.',
-                'icon' => '🌙',
+                'name' => 'Oiseau de nuit',
+                'description' => 'Vous avez visité une station entre 22h et 6h du matin.',
+                'icon' => '🦉',
                 'type' => 'special',
                 'criteria' => ['night_visit' => true]
             ],
             [
                 'name' => 'Lève-tôt',
-                'description' => 'Vous avez visité une station avant 6h du matin.',
-                'icon' => '🌅',
+                'description' => 'Vous avez visité une station entre 6h et 9h du matin.',
+                'icon' => '🐓',
                 'type' => 'special',
                 'criteria' => ['early_visit' => true]
             ],
             [
                 'name' => 'Marathonien du métro',
-                'description' => 'Vous avez visité 10 stations en une journée.',
+                'description' => 'Vous avez visité 10 stations en une seule journée.',
                 'icon' => '🏃',
                 'type' => 'special',
                 'criteria' => ['daily_marathon' => 10]

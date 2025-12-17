@@ -170,14 +170,14 @@ class ProfileController extends AbstractController
                     );
 
                     // Supprimer l'ancien avatar s'il existe
-                    if ($user->getAvatar()) {
-                        $oldAvatarPath = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars/' . $user->getAvatar();
+                    if ($user->getAvatarUrl()) {
+                        $oldAvatarPath = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars/' . $user->getAvatarUrl();
                         if (file_exists($oldAvatarPath)) {
                             unlink($oldAvatarPath);
                         }
                     }
 
-                    $user->setAvatar($newFilename);
+                    $user->setAvatarUrl($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Erreur lors de l\'upload de l\'image.');
                 }
@@ -210,12 +210,12 @@ class ProfileController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('delete-avatar', $request->request->get('_token'))) {
-            if ($user->getAvatar()) {
-                $avatarPath = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars/' . $user->getAvatar();
+            if ($user->getAvatarUrl()) {
+                $avatarPath = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars/' . $user->getAvatarUrl();
                 if (file_exists($avatarPath)) {
                     unlink($avatarPath);
                 }
-                $user->setAvatar(null);
+                $user->setAvatarUrl(null);
                 $entityManager->flush();
 
                 $this->addFlash('success', '✓ Votre photo de profil a été supprimée.');
@@ -240,8 +240,8 @@ class ProfileController extends AbstractController
 
         if ($this->isCsrfTokenValid('delete-account', $request->request->get('_token'))) {
             // Supprimer l'avatar s'il existe
-            if ($user->getAvatar()) {
-                $avatarPath = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars/' . $user->getAvatar();
+            if ($user->getAvatarUrl()) {
+                $avatarPath = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars/' . $user->getAvatarUrl();
                 if (file_exists($avatarPath)) {
                     unlink($avatarPath);
                 }
@@ -329,14 +329,21 @@ class ProfileController extends AbstractController
             return min(100, round(($maxPassedOnLine / $criteria['line_passed_same']) * 100));
         }
 
-        // Badges temporels (noctambule, lève-tôt)
+        // Badges temporels (oiseau de nuit, lève-tôt)
         if (isset($criteria['night_visit']) || isset($criteria['early_visit'])) {
             foreach ($userStations as $userStation) {
                 $stoppedAt = $userStation->getFirstStoppedAt();
                 if ($stoppedAt) {
                     $hour = (int) $stoppedAt->format('H');
-                    if ($hour >= 0 && $hour < 6) {
-                        return 100; // Badge débloqué dès qu'on a une visite la nuit
+
+                    // Oiseau de nuit : 22h-05h59
+                    if (isset($criteria['night_visit']) && (($hour >= 22 && $hour <= 23) || ($hour >= 0 && $hour <= 5))) {
+                        return 100;
+                    }
+
+                    // Lève-tôt : 06h-08h59
+                    if (isset($criteria['early_visit']) && ($hour >= 6 && $hour <= 8)) {
+                        return 100;
                     }
                 }
             }

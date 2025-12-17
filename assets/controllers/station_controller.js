@@ -1,35 +1,38 @@
 import { Controller } from '@hotwired/stimulus';
 
+// ← FLAG GLOBAL partagé entre TOUTES les instances
+let globalProcessing = false;
+
 export default class extends Controller {
     static targets = ['passedCheckbox', 'stoppedCheckbox'];
 
     connect() {
         this.stationId = this.element.dataset.stationId;
         this.lineId = this.element.dataset.stationLineId;
-        this.isProcessing = false;
         console.log('Station controller connected - Station:', this.stationId, 'Line:', this.lineId);
     }
 
     async togglePassed(event) {
         const checkbox = event.currentTarget;
 
-        // Empêcher si déjà en cours (n'importe quelle requête)
-        if (this.isProcessing) {
+        // ← Vérifier le flag GLOBAL
+        if (globalProcessing) {
             event.preventDefault();
             checkbox.checked = !checkbox.checked;
+            console.log('⚠️ Action bloquée : une requête est déjà en cours');
             return;
         }
 
         const isChecked = checkbox.checked;
 
-        // Bloquer les deux checkboxes
+        // Bloquer GLOBALEMENT
+        globalProcessing = true;
         this.disableCheckboxes();
 
         try {
             // RÈGLE : Si on décoche Passé, décocher automatiquement Visité
             if (!isChecked && this.hasStoppedCheckboxTarget && this.stoppedCheckboxTarget.checked) {
                 this.stoppedCheckboxTarget.checked = false;
-                // Mettre à jour Visité d'abord
                 await this.sendUpdate('stopped', false);
             }
 
@@ -48,6 +51,7 @@ export default class extends Controller {
             console.error('Error:', error);
             checkbox.checked = !isChecked;
             alert('Une erreur est survenue. Veuillez réessayer.');
+            globalProcessing = false;
             this.enableCheckboxes();
         }
     }
@@ -55,23 +59,24 @@ export default class extends Controller {
     async toggleStopped(event) {
         const checkbox = event.currentTarget;
 
-        // Empêcher si déjà en cours
-        if (this.isProcessing) {
+        // ← Vérifier le flag GLOBAL
+        if (globalProcessing) {
             event.preventDefault();
             checkbox.checked = !checkbox.checked;
+            console.log('⚠️ Action bloquée : une requête est déjà en cours');
             return;
         }
 
         const isChecked = checkbox.checked;
 
-        // Bloquer les deux checkboxes
+        // Bloquer GLOBALEMENT
+        globalProcessing = true;
         this.disableCheckboxes();
 
         try {
             // RÈGLE : Si on coche Visité, cocher automatiquement Passé
             if (isChecked && this.hasPassedCheckboxTarget && !this.passedCheckboxTarget.checked) {
                 this.passedCheckboxTarget.checked = true;
-                // Mettre à jour Passé d'abord
                 await this.sendUpdate('passed', true);
             }
 
@@ -90,6 +95,7 @@ export default class extends Controller {
             console.error('Error:', error);
             checkbox.checked = !isChecked;
             alert('Une erreur est survenue. Veuillez réessayer.');
+            globalProcessing = false;
             this.enableCheckboxes();
         }
     }
@@ -116,7 +122,6 @@ export default class extends Controller {
     }
 
     disableCheckboxes() {
-        this.isProcessing = true;
         if (this.hasPassedCheckboxTarget) {
             this.passedCheckboxTarget.disabled = true;
         }
@@ -126,7 +131,6 @@ export default class extends Controller {
     }
 
     enableCheckboxes() {
-        this.isProcessing = false;
         if (this.hasPassedCheckboxTarget) {
             this.passedCheckboxTarget.disabled = false;
         }

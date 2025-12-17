@@ -18,8 +18,7 @@ class BadgeService
         private LineRepository $lineRepository,
         private StationRepository $stationRepository,
         private EntityManagerInterface $entityManager
-    ) {
-    }
+    ) {}
 
     /**
      * Vérifie et attribue les badges à un utilisateur
@@ -130,7 +129,7 @@ class BadgeService
     }
 
     /**
-     * Vérifie si l'utilisateur a visité une station après minuit (00h00-06h00)
+     * Vérifie si l'utilisateur a visité une station pendant la nuit (22h-05h59 OU 00h-05h59)
      */
     private function hasNightVisit(array $userStations): bool
     {
@@ -138,8 +137,8 @@ class BadgeService
             $stoppedAt = $userStation->getFirstStoppedAt();
             if ($stoppedAt) {
                 $hour = (int) $stoppedAt->format('H');
-                // Entre minuit (0h) et 6h du matin
-                if ($hour >= 0 && $hour < 6) {
+                // Entre 22h-23h59 OU entre 00h-05h59
+                if (($hour >= 22 && $hour <= 23) || ($hour >= 0 && $hour <= 5)) {
                     return true;
                 }
             }
@@ -148,7 +147,7 @@ class BadgeService
     }
 
     /**
-     * Vérifie si l'utilisateur a visité une station avant 6h du matin
+     * Vérifie si l'utilisateur a visité une station tôt le matin (06h-08h59)
      */
     private function hasEarlyVisit(array $userStations): bool
     {
@@ -156,8 +155,8 @@ class BadgeService
             $stoppedAt = $userStation->getFirstStoppedAt();
             if ($stoppedAt) {
                 $hour = (int) $stoppedAt->format('H');
-                // Avant 6h du matin
-                if ($hour >= 0 && $hour < 6) {
+                // Entre 06h et 08h59
+                if ($hour >= 6 && $hour <= 8) {
                     return true;
                 }
             }
@@ -200,27 +199,27 @@ class BadgeService
     private function hasLinePassedSame(User $user, int $requiredCount): bool
     {
         $lines = $this->lineRepository->findAll();
-        
+
         foreach ($lines as $line) {
             $passedCountForLine = 0;
             $stations = $line->getStations();
-            
+
             foreach ($stations as $station) {
                 $userStation = $this->userStationRepository->findOneBy([
                     'user' => $user,
                     'station' => $station
                 ]);
-                
+
                 if ($userStation && $userStation->isPassed()) {
                     $passedCountForLine++;
                 }
             }
-            
+
             if ($passedCountForLine >= $requiredCount) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -350,25 +349,25 @@ class BadgeService
         if (isset($criteria['line_passed_same'])) {
             $lines = $this->lineRepository->findAll();
             $maxPassedOnLine = 0;
-            
+
             foreach ($lines as $line) {
                 $passedCountForLine = 0;
                 $stations = $line->getStations();
-                
+
                 foreach ($stations as $station) {
                     $userStation = $this->userStationRepository->findOneBy([
                         'user' => $user,
                         'station' => $station
                     ]);
-                    
+
                     if ($userStation && $userStation->isPassed()) {
                         $passedCountForLine++;
                     }
                 }
-                
+
                 $maxPassedOnLine = max($maxPassedOnLine, $passedCountForLine);
             }
-            
+
             return min(100, round(($maxPassedOnLine / $criteria['line_passed_same']) * 100));
         }
 
