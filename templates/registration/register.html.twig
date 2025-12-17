@@ -1,92 +1,189 @@
-{% extends 'base.html.twig' %}
+	{% extends 'base.html.twig' %}
 
-{% block title %}Inscription - À la bonne station
-{% endblock %}
+	{% block title %}Inscription - À la bonne station
+	{% endblock %}
 
-{% block body %}
-	<div class="min-h-[calc(100vh-16rem)] flex items-center justify-center py-12">
-		<div class="max-w-md w-full">
-			<div class="bg-white rounded-2xl shadow-xl p-8">
-				<div class="text-center mb-8">
-					<span class="text-6xl">🎉</span>
-					<h1 class="text-3xl font-bold text-gray-900 mt-4">Inscription</h1>
-					<p class="text-gray-600 mt-2">Rejoignez l'aventure !</p>
-				</div>
+	{% block body %}
+		<div class="min-h-[calc(100vh-16rem)] flex items-center justify-center py-12">
+			<div class="max-w-3xl w-full">
+				<div class="bg-white rounded-2xl shadow-xl p-8">
+					<div class="text-center mb-8">
+						<span class="text-6xl">🎉</span>
+						<h1 class="text-3xl font-bold text-gray-900 mt-4">Inscription</h1>
+						<p class="text-gray-600 mt-2">Rejoignez l'aventure !</p>
+					</div>
 
-				{# Messages flash d'erreur #}
-				{% for message in app.flashes('error') %}
-					<div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
-						<div class="flex items-start">
-							<span class="text-red-500 text-xl mr-3">⚠️</span>
-							<p class="text-sm text-red-700">{{ message }}</p>
+					{# Messages flash d'erreur #}
+					{% for message in app.flashes('error') %}
+						<div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+							<div class="flex items-start">
+								<span class="text-red-500 text-xl mr-3">⚠️</span>
+								<p class="text-sm text-red-700">{{ message }}</p>
+							</div>
 						</div>
+					{% endfor %}
+
+					<div x-data="{
+						password: '',
+						hasMinLength: false,
+						hasUppercase: false,
+						hasLowercase: false,
+						hasNumber: false,
+						hasSpecial: false,
+						isValid: false,
+						checkPassword() {
+							this.hasMinLength = this.password.length >= 6;
+							this.hasUppercase = /[A-Z]/.test(this.password);
+							this.hasLowercase = /[a-z]/.test(this.password);
+							this.hasNumber = /[0-9]/.test(this.password);
+							this.hasSpecial = /[@$!%*?&_\-#]/.test(this.password);
+							this.isValid = this.hasMinLength && this.hasUppercase && this.hasLowercase && this.hasNumber && this.hasSpecial;
+						}
+					}">
+						{{ form_start(registrationForm, {'attr': {'class': 'space-y-6'}}) }}
+
+						{# Ligne 1 : Pseudo et Email côte à côte #}
+						<div
+							class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							{# Pseudo #}
+							<div>
+								{{ form_label(registrationForm.username) }}
+								{{ form_widget(registrationForm.username) }}
+								<div class="text-red-600 text-xs mt-1">
+									{{ form_errors(registrationForm.username) }}
+								</div>
+							</div>
+
+							{# Email #}
+							<div>
+								{{ form_label(registrationForm.email) }}
+								{{ form_widget(registrationForm.email) }}
+								<div class="text-red-600 text-xs mt-1">
+									{{ form_errors(registrationForm.email) }}
+								</div>
+							</div>
+						</div>
+
+						{# Ligne 2 : Mot de passe et Confirmation côte à côte #}
+						<div
+							class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							{# Mot de passe #}
+							<div>
+								{{ form_label(registrationForm.plainPassword.first) }}
+								{{ form_widget(registrationForm.plainPassword.first) }}
+								<div class="text-red-600 text-xs mt-1">
+									{{ form_errors(registrationForm.plainPassword.first) }}
+								</div>
+							</div>
+
+							{# Confirmation mot de passe #}
+							<div>
+								{{ form_label(registrationForm.plainPassword.second) }}
+								{{ form_widget(registrationForm.plainPassword.second) }}
+								<div class="text-red-600 text-xs mt-1">
+									{{ form_errors(registrationForm.plainPassword.second) }}
+								</div>
+							</div>
+						</div>
+
+						{# Indicateur de force du mot de passe (pleine largeur) #}
+						<div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+							<p class="text-xs font-semibold text-gray-700 mb-2">Le mot de passe doit contenir :</p>
+							<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+								<ul class="space-y-1">
+									<li class="flex items-center text-xs">
+										<span x-show="!hasMinLength" class="text-red-500 mr-2">✗</span>
+										<span x-show="hasMinLength" class="text-green-500 mr-2">✓</span>
+										<span :class="hasMinLength ? 'text-green-700' : 'text-gray-600'">
+											Au moins 6 caractères
+										</span>
+									</li>
+									<li class="flex items-center text-xs">
+										<span x-show="!hasUppercase" class="text-red-500 mr-2">✗</span>
+										<span x-show="hasUppercase" class="text-green-500 mr-2">✓</span>
+										<span :class="hasUppercase ? 'text-green-700' : 'text-gray-600'">
+											Une majuscule (A-Z)
+										</span>
+									</li>
+									<li class="flex items-center text-xs">
+										<span x-show="!hasNumber" class="text-red-500 mr-2">✗</span>
+										<span x-show="hasNumber" class="text-green-500 mr-2">✓</span>
+										<span :class="hasNumber ? 'text-green-700' : 'text-gray-600'">
+											Un chiffre (0-9)
+										</span>
+									</li>
+								</ul>
+								<ul class="space-y-1">
+									<li class="flex items-center text-xs">
+										<span x-show="!hasLowercase" class="text-red-500 mr-2">✗</span>
+										<span x-show="hasLowercase" class="text-green-500 mr-2">✓</span>
+										<span :class="hasLowercase ? 'text-green-700' : 'text-gray-600'">
+											Une minuscule (a-z)
+										</span>
+									</li>
+									<li class="flex items-center text-xs">
+										<span x-show="!hasSpecial" class="text-red-500 mr-2">✗</span>
+										<span x-show="hasSpecial" class="text-green-500 mr-2">✓</span>
+										<span :class="hasSpecial ? 'text-green-700' : 'text-gray-600'">
+											Un caractère spécial (!@#$%&*_-)
+										</span>
+									</li>
+								</ul>
+							</div>
+
+							{# Barre de progression #}
+							<div class="mt-3">
+								<div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+									<div class="h-full transition-all duration-300" :class="{
+																'bg-red-500': password.length > 0 && !isValid,
+																'bg-green-500': isValid,
+																'w-0': password.length === 0,
+																'w-1/5': hasMinLength && password.length > 0,
+																'w-2/5': hasMinLength && (hasUppercase || hasLowercase || hasNumber || hasSpecial),
+																'w-3/5': hasMinLength && ((hasUppercase && hasLowercase) || (hasNumber && hasSpecial)),
+																'w-4/5': (hasMinLength + hasUppercase + hasLowercase + hasNumber + hasSpecial) >= 4,
+																'w-full': isValid
+															}"></div>
+								</div>
+								<p x-show="isValid" class="text-xs text-green-600 font-semibold mt-1 text-center">
+									✓ Mot de passe fort !
+								</p>
+							</div>
+						</div>
+
+						{# Conditions d'utilisation #}
+						<div>
+							<div class="flex items-start">
+								{{ form_widget(registrationForm.agreeTerms) }}
+								<label for="{{ registrationForm.agreeTerms.vars.id }}" class="ml-2 text-sm text-gray-700">
+									J'accepte les
+									<a href="{{ path('app_terms') }}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium underline">
+										Conditions d'Utilisation
+									</a>
+								</label>
+							</div>
+							<div class="text-red-600 text-xs mt-1 ml-6">
+								{{ form_errors(registrationForm.agreeTerms) }}
+							</div>
+						</div>
+
+						{# Bouton de soumission #}
+						<button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" :disabled="!isValid">
+							Créer mon compte
+						</button>
+
+						{{ form_end(registrationForm) }}
 					</div>
-				{% endfor %}
 
-				{{ form_start(registrationForm, {'attr': {'class': 'space-y-6'}}) }}
-
-				<div>
-					{{ form_label(registrationForm.username) }}
-					{{ form_widget(registrationForm.username) }}
-					<div class="text-red-600 text-xs mt-1">
-						{{ form_errors(registrationForm.username) }}
-					</div>
-				</div>
-
-				<div>
-					{{ form_label(registrationForm.email) }}
-					{{ form_widget(registrationForm.email) }}
-					<div class="text-red-600 text-xs mt-1">
-						{{ form_errors(registrationForm.email) }}
-					</div>
-				</div>
-
-				<div>
-					{{ form_label(registrationForm.plainPassword.first) }}
-					{{ form_widget(registrationForm.plainPassword.first) }}
-					<div class="text-red-600 text-xs mt-1">
-						{{ form_errors(registrationForm.plainPassword.first) }}
-					</div>
-				</div>
-
-				<div>
-					{{ form_label(registrationForm.plainPassword.second) }}
-					{{ form_widget(registrationForm.plainPassword.second) }}
-					<div class="text-red-600 text-xs mt-1">
-						{{ form_errors(registrationForm.plainPassword.second) }}
-					</div>
-				</div>
-
-				<div>
-					<div class="flex items-start">
-						{{ form_widget(registrationForm.agreeTerms) }}
-						<label for="{{ registrationForm.agreeTerms.vars.id }}" class="ml-2 text-sm text-gray-700">
-							J'accepte les
-							<a href="{{ path('app_terms') }}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium underline">
-								Conditions d'Utilisation
+					<div class="mt-6 text-center">
+						<p class="text-sm text-gray-600">
+							Vous avez déjà un compte ?
+							<a href="{{ path('app_login') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+								Connectez-vous
 							</a>
-						</label>
+						</p>
 					</div>
-					<div class="text-red-600 text-xs mt-1 ml-6">
-						{{ form_errors(registrationForm.agreeTerms) }}
-					</div>
-				</div>
-
-				<button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-md hover:shadow-lg cursor-pointer">
-					Créer mon compte
-				</button>
-
-				{{ form_end(registrationForm) }}
-
-				<div class="mt-6 text-center">
-					<p class="text-sm text-gray-600">
-						Vous avez déjà un compte ?
-						<a href="{{ path('app_login') }}" class="text-blue-600 hover:text-blue-800 font-medium">
-							Connectez-vous
-						</a>
-					</p>
 				</div>
 			</div>
 		</div>
-	</div>
-{% endblock %}
+	{% endblock %}

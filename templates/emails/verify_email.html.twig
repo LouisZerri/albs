@@ -10,123 +10,129 @@
             color: #1f2937;
             background-color: #f3f4f6;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
         .email-container {
-            max-width: 600px;
-            margin: 40px auto;
+            max-width: 800px;
+            margin: 0 auto;
             background: white;
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         .header {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
+            padding: 40px 40px 20px 40px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
         }
-        .header h1 {
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .tagline {
+            color: #6b7280;
+            font-size: 14px;
             margin: 0;
-            font-size: 36px;
-        }
-        .header p {
-            margin: 10px 0 0 0;
-            font-size: 18px;
-            opacity: 0.9;
         }
         .content {
-            padding: 40px 30px;
+            padding: 40px;
+        }
+        .greeting {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 20px 0;
         }
         .content p {
-            margin: 0 0 15px 0;
+            margin: 0 0 16px 0;
             color: #4b5563;
+            font-size: 15px;
         }
         .button-container {
-            text-align: center;
-            margin: 30px 0;
+            margin: 32px 0;
         }
         .button {
             display: inline-block;
             background: #3b82f6;
             color: white !important;
-            padding: 14px 40px;
+            padding: 14px 32px;
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 15px;
             transition: background 0.2s;
         }
         .button:hover {
             background: #2563eb;
         }
-        .expiry-notice {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 12px 16px;
-            margin: 20px 0;
+        .info-box {
+            background: #f9fafb;
+            border-left: 3px solid #3b82f6;
+            padding: 16px;
+            margin: 24px 0;
             border-radius: 4px;
+        }
+        .info-box p {
+            margin: 0;
             font-size: 14px;
-            color: #92400e;
+            color: #374151;
         }
         .footer {
             background: #f9fafb;
-            padding: 30px;
-            text-align: center;
+            padding: 24px 40px;
             border-top: 1px solid #e5e7eb;
         }
-        .footer p {
-            margin: 5px 0;
-            color: #6b7280;
+        .footer-text {
+            margin: 0;
+            color: #9ca3af;
             font-size: 13px;
-        }
-        .auto-email-notice {
-            background: #e0f2fe;
-            border: 1px solid #bae6fd;
-            padding: 12px 20px;
-            margin-top: 15px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #075985;
             text-align: center;
+        }
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 24px 0;
         }
     </style>
 </head>
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>🚇 À la bonne station</h1>
-            <p>Vérifiez votre adresse email</p>
+            <div class="logo">🚇 À la bonne station</div>
+            <p class="tagline">Votre aventure dans le métro parisien commence ici</p>
         </div>
         
         <div class="content">
-            <p><strong>Bonjour {{ user.username }},</strong></p>
+            <p class="greeting">Bonjour {{ user.username }} ! 👋</p>
             
-            <p>Merci de vous être inscrit sur <strong>À la bonne station</strong> ! 🎉</p>
+            <p>Merci de vous être inscrit sur <strong>À la bonne station</strong>.</p>
             
-            <p>Pour activer votre compte et commencer votre aventure dans le métro parisien, veuillez cliquer sur le bouton ci-dessous :</p>
+            <p>Pour commencer à collectionner vos stations et débloquer vos premiers badges, il ne vous reste plus qu'à vérifier votre adresse email.</p>
             
             <div class="button-container">
-                <a href="{{ verificationUrl }}" class="button">✅ Vérifier mon email</a>
+                <a href="{{ verificationUrl }}" class="button">Vérifier mon adresse email</a>
             </div>
             
-            <div class="expiry-notice">
-                ⏰ Ce lien est valide pendant <strong>24 heures</strong> (jusqu'au {{ expiresAt|date('d/m/Y à H:i') }}).
+            <div class="info-box">
+                <p>⏰ <strong>Ce lien expire dans 24 heures</strong> ({{ expiresAt|date('d/m/Y à H:i', 'Europe/Paris') }})</p>
             </div>
             
-            <p style="margin-top: 30px; font-size: 14px; color: #9ca3af;">
-                Si vous n'avez pas créé de compte sur À la bonne station, vous pouvez ignorer cet email en toute sécurité.
+            <div class="divider"></div>
+            
+            <p style="font-size: 13px; color: #9ca3af;">
+                Vous n'avez pas créé ce compte ? Vous pouvez ignorer cet email en toute sécurité.
             </p>
         </div>
         
         <div class="footer">
-            <p style="font-weight: 600;">© {{ 'now'|date('Y') }} À la bonne station</p>
-            <p>Tous droits réservés</p>
-            
-            <div class="auto-email-notice">
-                <strong>📧 Ceci est un email automatique.</strong><br>
-                Merci de ne pas répondre à ce message.
-            </div>
+            <p class="footer-text">
+                © {{ 'now'|date('Y') }} À la bonne station · Tous droits réservés
+            </p>
+            <p class="footer-text" style="margin-top: 8px;">
+                📧 Ceci est un email automatique, merci de ne pas y répondre.
+            </p>
         </div>
     </div>
 </body>

@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\User;
+use App\Validator\Constraints\NoInappropriateWords;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -16,6 +17,7 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class RegistrationFormType extends AbstractType
 {
@@ -36,9 +38,15 @@ class RegistrationFormType extends AbstractType
                     ]),
                     new Length([
                         'min' => 3,
+                        'max' => 20,
                         'minMessage' => 'Votre pseudo doit contenir au moins {{ limit }} caractères',
-                        'max' => 100,
+                        'maxMessage' => 'Votre pseudo ne peut pas dépasser {{ limit }} caractères',
                     ]),
+                    new Regex([
+                        'pattern' => '/^[a-zA-Z0-9_-]+$/',
+                        'message' => 'Le pseudo ne peut contenir que des lettres, chiffres, tirets et underscores',
+                    ]),
+                    new NoInappropriateWords(),
                 ],
             ])
             ->add('email', EmailType::class, [
@@ -64,7 +72,9 @@ class RegistrationFormType extends AbstractType
                     'attr' => [
                         'class' => 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
                         'autocomplete' => 'new-password',
-                        'placeholder' => '••••••••'
+                        'placeholder' => '••••••••',
+                        'x-model' => 'password',
+                        '@input' => 'checkPassword()'
                     ],
                     'label' => 'Mot de passe',
                     'label_attr' => ['class' => 'block text-sm font-medium text-gray-700 mb-2'],
@@ -90,6 +100,10 @@ class RegistrationFormType extends AbstractType
                         'min' => 6,
                         'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères',
                         'max' => 4096,
+                    ]),
+                    new Regex([
+                        'pattern' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$/',
+                        'message' => 'Le mot de passe doit contenir au moins 6 caractères, une majuscule, un chiffre et un caractère spécial',
                     ]),
                 ],
             ])

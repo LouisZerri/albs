@@ -10,42 +10,51 @@
             color: #1f2937;
             background-color: #f3f4f6;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
         .email-container {
-            max-width: 600px;
-            margin: 40px auto;
+            max-width: 800px;
+            margin: 0 auto;
             background: white;
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         .header {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
+            padding: 40px 40px 20px 40px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
         }
-        .header .emoji {
-            font-size: 64px;
-            margin-bottom: 10px;
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
         }
-        .header h1 {
+        .tagline {
+            color: #6b7280;
+            font-size: 14px;
             margin: 0;
-            font-size: 32px;
         }
         .content {
-            padding: 40px 30px;
+            padding: 40px;
+        }
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 20px 0;
         }
         .content p {
-            margin: 0 0 15px 0;
+            margin: 0 0 16px 0;
             color: #4b5563;
+            font-size: 15px;
         }
         .features {
             background: #f0fdf4;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 25px 0;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 24px 0;
         }
         .features ul {
             list-style: none;
@@ -53,29 +62,19 @@
             margin: 0;
         }
         .features li {
-            padding: 10px 0;
+            padding: 8px 0;
             font-size: 15px;
             color: #166534;
         }
         .footer {
             background: #f9fafb;
-            padding: 30px;
-            text-align: center;
+            padding: 24px 40px;
             border-top: 1px solid #e5e7eb;
         }
-        .footer p {
-            margin: 5px 0;
-            color: #6b7280;
+        .footer-text {
+            margin: 0;
+            color: #9ca3af;
             font-size: 13px;
-        }
-        .auto-email-notice {
-            background: #e0f2fe;
-            border: 1px solid #bae6fd;
-            padding: 12px 20px;
-            margin-top: 15px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #075985;
             text-align: center;
         }
     </style>
@@ -83,40 +82,39 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <div class="emoji">🎉</div>
-            <h1>Bienvenue à bord !</h1>
+            <div class="logo">🚇 À la bonne station</div>
+            <p class="tagline">Bienvenue dans l'aventure !</p>
         </div>
         
         <div class="content">
-            <p><strong>Bonjour {{ user.username }},</strong></p>
+            <p class="greeting">Bienvenue {{ user.username }} ! 🎉</p>
             
-            <p>Félicitations ! Votre compte est maintenant <strong>activé</strong> !</p>
+            <p>Votre compte est maintenant <strong>activé</strong> !</p>
             
-            <p>Vous pouvez maintenant profiter de toutes les fonctionnalités d'<strong>À la bonne station</strong> :</p>
+            <p>Vous pouvez dès maintenant profiter de toutes les fonctionnalités :</p>
             
             <div class="features">
                 <ul>
-                    <li>📍 <strong>Marquer les stations</strong> que vous visitez</li>
-                    <li>🏆 <strong>Débloquer des badges</strong> en accomplissant des défis</li>
-                    <li>📊 <strong>Suivre votre progression</strong> en temps réel</li>
-                    <li>🎯 <strong>Compléter les 16 lignes</strong> du métro parisien</li>
-                    <li>🌟 <strong>Partager vos exploits</strong> avec la communauté</li>
+                    <li>📍 Marquer les stations que vous visitez</li>
+                    <li>🏆 Débloquer des badges en accomplissant des défis</li>
+                    <li>📊 Suivre votre progression en temps réel</li>
+                    <li>🎯 Compléter les 16 lignes du métro parisien</li>
+                    <li>🌟 Partager vos exploits avec la communauté</li>
                 </ul>
             </div>
             
-            <p style="font-size: 18px; font-weight: 600; color: #10b981; text-align: center; margin-top: 30px;">
-                Bon voyage dans le métro parisien ! 💙
+            <p style="font-size: 18px; font-weight: 600; color: #10b981; margin-top: 32px;">
+                Bon voyage dans le métro parisien ! 🚇💙
             </p>
         </div>
         
         <div class="footer">
-            <p style="font-weight: 600;">© {{ 'now'|date('Y') }} À la bonne station</p>
-            <p>Tous droits réservés</p>
-            
-            <div class="auto-email-notice">
-                <strong>📧 Ceci est un email automatique.</strong><br>
-                Merci de ne pas répondre à ce message.
-            </div>
+            <p class="footer-text">
+                © {{ 'now'|date('Y') }} À la bonne station · Tous droits réservés
+            </p>
+            <p class="footer-text" style="margin-top: 8px;">
+                📧 Ceci est un email automatique, merci de ne pas y répondre.
+            </p>
         </div>
     </div>
 </body>

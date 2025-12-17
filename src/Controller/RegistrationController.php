@@ -17,6 +17,9 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class RegistrationController extends AbstractController
 {
+    /**
+     * Page d'inscription
+     */
     #[Route('/register', name: 'app_register')]
     public function register(
         Request $request,
@@ -52,14 +55,22 @@ class RegistrationController extends AbstractController
                     $emailService->sendEmailVerification($user);
                     $this->addFlash('success', '🎉 Inscription réussie ! Un email de vérification a été envoyé à ' . $user->getEmail());
                 } catch (\Exception $e) {
-                    $this->addFlash('warning', 'Compte créé mais l\'email n\'a pas pu être envoyé. Erreur : ' . $e->getMessage());
+                    $this->addFlash('warning', 'Compte créé mais l\'email n\'a pas pu être envoyé.');
                 }
 
+                $request->getSession()->save();
                 return $this->redirectToRoute('app_login');
             } catch (UniqueConstraintViolationException $e) {
-                $this->addFlash('error', 'Cet email est déjà utilisé.');
+                // Déterminer quel champ est en doublon
+                if (str_contains($e->getMessage(), 'email')) {
+                    $this->addFlash('error', 'Cet email est déjà utilisé.');
+                } elseif (str_contains($e->getMessage(), 'username')) {
+                    $this->addFlash('error', 'Ce pseudo est déjà utilisé.');
+                } else {
+                    $this->addFlash('error', 'Ces informations sont déjà utilisées.');
+                }
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Erreur lors de la création du compte : ' . $e->getMessage());
+                $this->addFlash('error', 'Erreur lors de la création du compte.');
             }
         }
 

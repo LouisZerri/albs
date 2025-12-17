@@ -80,7 +80,7 @@ class PasswordResetController extends AbstractController
             return $this->redirectToRoute('app_forgot_password');
         }
 
-        $form = $this->createForm(PasswordResetRequestFormType::class);
+        $form = $this->createForm(PasswordResetFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

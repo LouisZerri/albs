@@ -9,6 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class PasswordResetFormType extends AbstractType
 {
@@ -18,20 +19,20 @@ class PasswordResetFormType extends AbstractType
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'first_options' => [
-                    'attr' => [
-                        'class' => 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500',
-                        'placeholder' => '••••••••'
-                    ],
                     'label' => 'Nouveau mot de passe',
                     'label_attr' => ['class' => 'block text-sm font-medium text-gray-700 mb-2'],
-                ],
-                'second_options' => [
                     'attr' => [
                         'class' => 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500',
                         'placeholder' => '••••••••'
                     ],
+                ],
+                'second_options' => [
                     'label' => 'Confirmer le mot de passe',
                     'label_attr' => ['class' => 'block text-sm font-medium text-gray-700 mb-2'],
+                    'attr' => [
+                        'class' => 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500',
+                        'placeholder' => '••••••••'
+                    ],
                 ],
                 'invalid_message' => 'Les mots de passe doivent correspondre.',
                 'constraints' => [
@@ -40,6 +41,10 @@ class PasswordResetFormType extends AbstractType
                         'min' => 6,
                         'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères',
                         'max' => 4096,
+                    ]),
+                    new Regex([
+                        'pattern' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$/',
+                        'message' => 'Le mot de passe doit contenir au moins 6 caractères, une majuscule, un chiffre et un caractère spécial',
                     ]),
                 ],
             ]);
