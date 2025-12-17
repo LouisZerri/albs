@@ -298,12 +298,11 @@ class ProfileController extends AbstractController
 
         // Badge toutes les stations
         if (isset($criteria['all_stations'])) {
-            // Tu devras passer le nombre total de stations, ou le calculer
             $totalStations = 309; // Nombre approximatif de stations du métro parisien
             return min(100, round(($totalStopped / $totalStations) * 100));
         }
 
-        // Badge marathonien : stations en une journée
+        // Badge marathonien : stations en une journée (meilleur record)
         if (isset($criteria['daily_marathon'])) {
             $stationsByDay = [];
             foreach ($userStations as $userStation) {
@@ -335,12 +334,12 @@ class ProfileController extends AbstractController
                 $stoppedAt = $userStation->getFirstStoppedAt();
                 if ($stoppedAt) {
                     $hour = (int) $stoppedAt->format('H');
-
+                    
                     // Oiseau de nuit : 22h-05h59
                     if (isset($criteria['night_visit']) && (($hour >= 22 && $hour <= 23) || ($hour >= 0 && $hour <= 5))) {
                         return 100;
                     }
-
+                    
                     // Lève-tôt : 06h-08h59
                     if (isset($criteria['early_visit']) && ($hour >= 6 && $hour <= 8)) {
                         return 100;

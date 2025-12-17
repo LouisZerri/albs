@@ -18,7 +18,8 @@ class BadgeService
         private LineRepository $lineRepository,
         private StationRepository $stationRepository,
         private EntityManagerInterface $entityManager
-    ) {}
+    ) {
+    }
 
     /**
      * Vérifie et attribue les badges à un utilisateur
@@ -97,21 +98,21 @@ class BadgeService
             return true;
         }
 
-        // Badge Noctambule : visité une station après minuit (00h-06h)
+        // Badge Oiseau de nuit : visité une station entre 22h-05h59
         if (isset($criteria['night_visit']) && $criteria['night_visit']) {
             if ($this->hasNightVisit($userStations)) {
                 return true;
             }
         }
 
-        // Badge Lève-tôt : visité une station avant 6h
+        // Badge Lève-tôt : visité une station entre 06h-08h59
         if (isset($criteria['early_visit']) && $criteria['early_visit']) {
             if ($this->hasEarlyVisit($userStations)) {
                 return true;
             }
         }
 
-        // Badge Marathonien : 10+ stations dans une journée
+        // Badge Marathonien : X+ stations dans une journée (10, 20, 30)
         if (isset($criteria['daily_marathon'])) {
             if ($this->hasDailyMarathon($userStations, $criteria['daily_marathon'])) {
                 return true;
@@ -129,7 +130,7 @@ class BadgeService
     }
 
     /**
-     * Vérifie si l'utilisateur a visité une station pendant la nuit (22h-05h59 OU 00h-05h59)
+     * Vérifie si l'utilisateur a visité une station pendant la nuit (22h-05h59)
      */
     private function hasNightVisit(array $userStations): bool
     {
@@ -199,27 +200,27 @@ class BadgeService
     private function hasLinePassedSame(User $user, int $requiredCount): bool
     {
         $lines = $this->lineRepository->findAll();
-
+        
         foreach ($lines as $line) {
             $passedCountForLine = 0;
             $stations = $line->getStations();
-
+            
             foreach ($stations as $station) {
                 $userStation = $this->userStationRepository->findOneBy([
                     'user' => $user,
                     'station' => $station
                 ]);
-
+                
                 if ($userStation && $userStation->isPassed()) {
                     $passedCountForLine++;
                 }
             }
-
+            
             if ($passedCountForLine >= $requiredCount) {
                 return true;
             }
         }
-
+        
         return false;
     }
 
@@ -328,7 +329,7 @@ class BadgeService
             return min(100, round(($stoppedCount / $totalStations) * 100));
         }
 
-        // Badge marathonien : stations visitées en une journée
+        // Badge marathonien : stations visitées en une journée (meilleur record)
         if (isset($criteria['daily_marathon'])) {
             $stationsByDay = [];
             foreach ($userStations as $userStation) {
@@ -349,29 +350,29 @@ class BadgeService
         if (isset($criteria['line_passed_same'])) {
             $lines = $this->lineRepository->findAll();
             $maxPassedOnLine = 0;
-
+            
             foreach ($lines as $line) {
                 $passedCountForLine = 0;
                 $stations = $line->getStations();
-
+                
                 foreach ($stations as $station) {
                     $userStation = $this->userStationRepository->findOneBy([
                         'user' => $user,
                         'station' => $station
                     ]);
-
+                    
                     if ($userStation && $userStation->isPassed()) {
                         $passedCountForLine++;
                     }
                 }
-
+                
                 $maxPassedOnLine = max($maxPassedOnLine, $passedCountForLine);
             }
-
+            
             return min(100, round(($maxPassedOnLine / $criteria['line_passed_same']) * 100));
         }
 
-        // Badges temporels (noctambule, lève-tôt)
+        // Badges temporels (oiseau de nuit, lève-tôt)
         if (isset($criteria['night_visit']) || isset($criteria['early_visit'])) {
             return $this->hasNightVisit($userStations) || $this->hasEarlyVisit($userStations) ? 100 : 0;
         }

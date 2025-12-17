@@ -112,12 +112,27 @@ class BadgeFixtures extends Fixture
                 'criteria' => ['early_visit' => true]
             ],
             [
-                'name' => 'Marathonien du métro',
+                'name' => 'Jogger du métro',
                 'description' => 'Vous avez visité 10 stations en une seule journée.',
-                'icon' => '🏃',
-                'type' => 'special',
+                'icon' => '🚶',
+                'type' => 'marathon',
                 'criteria' => ['daily_marathon' => 10]
             ],
+            [
+                'name' => 'Marathonien du métro',
+                'description' => 'Vous avez visité 20 stations en une seule journée. Impressionnant !',
+                'icon' => '🏃',
+                'type' => 'marathon',
+                'criteria' => ['daily_marathon' => 20]
+            ],
+            [
+                'name' => 'Ultra-marathonien',
+                'description' => 'Vous avez visité 30 stations en une seule journée. Vous êtes exceptionnel !',
+                'icon' => '🦸',
+                'type' => 'marathon',
+                'criteria' => ['daily_marathon' => 30]
+            ],
+            
             [
                 'name' => 'Fidèle de la ligne',
                 'description' => 'Vous êtes passé par 20 stations de la même ligne.',
