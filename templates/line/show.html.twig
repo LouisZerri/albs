@@ -28,55 +28,43 @@
         </div>
 
         {# Statistiques de progression #}
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-blue-50 rounded-xl p-6 relative overflow-hidden">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <p class="text-base text-gray-600 mb-2">Stations passées</p>
-                        <p class="text-4xl font-bold text-blue-600">{{ stats.passed }}/{{ stats.total }}</p>
-                    </div>
-                    <div class="text-6xl">🚶</div>
-                </div>
-                <div class="mt-4 bg-gray-200 rounded-full h-6 overflow-hidden relative">
-                    <div class="bg-blue-600 h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-2" 
-                         style="width: {{ stats.passedPercentage }}%">
-                        {% if stats.passedPercentage > 10 %}
-                            <span class="text-3xl leading-none">🚇</span>
-                        {% endif %}
-                    </div>
-                    {% if stats.passedPercentage <= 10 and stats.passedPercentage > 0 %}
-                        <div class="absolute top-0 left-0 h-6 flex items-center pl-2">
-                            <span class="text-3xl leading-none">🚇</span>
-                        </div>
-                    {% endif %}
-                </div>
-                <p class="text-sm text-gray-600 mt-2">{{ stats.passedPercentage }}%</p>
+<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 relative overflow-hidden border border-blue-200 hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <p class="text-blue-600 text-sm font-medium mb-2">Stations passées</p>
+                <p class="text-4xl font-black text-blue-700">{{ stats.passed }}/{{ stats.total }}</p>
+                <p class="text-xs text-blue-500 mt-1">Tu as traversé ces stations</p>
             </div>
-
-            <div class="bg-green-50 rounded-xl p-6 relative overflow-hidden">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <p class="text-base text-gray-600 mb-2">Stations visitées</p>
-                        <p class="text-4xl font-bold text-green-600">{{ stats.stopped }}/{{ stats.total }}</p>
-                    </div>
-                    <div class="text-6xl">✅</div>
-                </div>
-                <div class="mt-4 bg-gray-200 rounded-full h-6 overflow-hidden relative">
-                    <div class="bg-green-600 h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-2" 
-                         style="width: {{ stats.stoppedPercentage }}%">
-                        {% if stats.stoppedPercentage > 10 %}
-                            <span class="text-3xl leading-none">🚇</span>
-                        {% endif %}
-                    </div>
-                    {% if stats.stoppedPercentage <= 10 and stats.stoppedPercentage > 0 %}
-                        <div class="absolute top-0 left-0 h-6 flex items-center pl-2">
-                            <span class="text-3xl leading-none">🚇</span>
-                        </div>
-                    {% endif %}
-                </div>
-                <p class="text-sm text-gray-600 mt-2">{{ stats.stoppedPercentage }}%</p>
+            <div class="text-6xl animate-float">🚶</div>
+        </div>
+        <div class="mt-4 bg-blue-200 rounded-full h-10 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-10 rounded-full transition-all duration-1000 animate-progress flex items-center justify-end pr-1" 
+                 style="width: {{ stats.passedPercentage == 0 ? 0 : max(stats.passedPercentage, 12) }}%;">
+                <span class="text-3xl leading-none">🚇</span>
             </div>
         </div>
+        <p class="text-sm text-blue-600 mt-2 font-semibold">{{ stats.passedPercentage }}%</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6 relative overflow-hidden border border-green-200 hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <p class="text-green-600 text-sm font-medium mb-2">Stations visitées</p>
+                <p class="text-4xl font-black text-green-700">{{ stats.stopped }}/{{ stats.total }}</p>
+                <p class="text-xs text-green-500 mt-1">Tu t'y es arrêté(e)</p>
+            </div>
+            <div class="text-6xl animate-float" style="animation-delay: 0.5s;">✅</div>
+        </div>
+        <div class="mt-4 bg-green-200 rounded-full h-10 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 h-10 rounded-full transition-all duration-1000 animate-progress flex items-center justify-end pr-1" 
+                 style="width: {{ stats.stoppedPercentage == 0 ? 0 : max(stats.stoppedPercentage, 12) }}%;">
+                <span class="text-3xl leading-none">🚇</span>
+            </div>
+        </div>
+        <p class="text-sm text-green-600 mt-2 font-semibold">{{ stats.stoppedPercentage }}%</p>
+    </div>
+</div>
     </div>
 
     {# Vue verticale de la ligne de métro #}

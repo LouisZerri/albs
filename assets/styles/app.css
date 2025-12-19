@@ -63,19 +63,6 @@
    CLASSES PERSONNALISÉES (qui ne peuvent pas être faites en Tailwind)
    ============================================ */
 
-/* Avatar ring animé */
-.avatar-ring {
-    position: relative;
-}
-
-.avatar-ring::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.5);
-    animation: pulse-ring 2s ease-out infinite;
-}
 
 /* Badge shine effect */
 .badge-shine {
