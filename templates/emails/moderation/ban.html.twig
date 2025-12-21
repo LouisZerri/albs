@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .header {
+            padding: 40px 40px 20px 40px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .tagline {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+        }
+        .content {
+            padding: 40px;
+        }
+        .greeting {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 20px 0;
+        }
+        .content p {
+            margin: 0 0 16px 0;
+            color: #4b5563;
+            font-size: 15px;
+        }
+        .content ul {
+            margin: 16px 0;
+            padding-left: 24px;
+            color: #4b5563;
+        }
+        .content li {
+            margin: 8px 0;
+        }
+        .info-box {
+            background: #fef2f2;
+            border-left: 3px solid #ef4444;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+        .info-box p {
+            margin: 0;
+            font-size: 14px;
+            color: #991b1b;
+        }
+        .warning-box {
+            background: #f9fafb;
+            border-left: 3px solid #6b7280;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+        .warning-box p {
+            margin: 0;
+            font-size: 14px;
+            color: #374151;
+        }
+        .footer {
+            background: #f9fafb;
+            padding: 24px 40px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer-text {
+            margin: 0;
+            color: #9ca3af;
+            font-size: 13px;
+            text-align: center;
+        }
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 24px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">🚇 À la bonne station</div>
+            <p class="tagline">Compte banni</p>
+        </div>
+        
+        <div class="content">
+            <p class="greeting">Bonjour {{ user.username }} 👋</p>
+            
+            <div class="info-box">
+                <p><strong>🚫 Votre compte a été banni</strong></p>
+                <p style="margin-top: 8px;">Suite à <strong>trois avertissements</strong> pour non-respect des règles de notre communauté, votre compte a été <strong>définitivement banni</strong>.</p>
+            </div>
+            
+            <p><strong>Conséquences du bannissement :</strong></p>
+            <ul>
+                <li>Vous ne pouvez plus accéder à votre compte</li>
+                <li>Vous ne pouvez plus publier de messages sur le forum</li>
+                <li>Votre progression et vos badges ne sont plus accessibles</li>
+                <li>Toutes vos données seront supprimées après 30 jours</li>
+            </ul>
+            
+            <p>Cette décision fait suite à des violations répétées de nos <a href="{{ url('app_terms') }}" style="color: #2563eb;">Conditions d'Utilisation</a>.</p>
+            
+            <div class="warning-box">
+                <p><strong>📧 Faire appel :</strong> Si vous pensez que cette décision est une erreur, vous pouvez nous contacter dans un délai de 7 jours à <a href="mailto:contact@alabonnestation.fr" style="color: #2563eb;">contact@alabonnestation.fr</a></p>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <p style="font-size: 13px; color: #9ca3af;">
+                Nous regrettons d'en arriver là et espérons que vous comprendrez que ces mesures sont nécessaires pour maintenir un environnement sain et respectueux pour tous nos utilisateurs.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p class="footer-text">
+                © {{ 'now'|date('Y') }} À la bonne station · Tous droits réservés
+            </p>
+            <p class="footer-text" style="margin-top: 8px;">
+                📧 Ceci est un email automatique, merci de ne pas y répondre.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

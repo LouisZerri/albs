@@ -34,6 +34,10 @@ Encore
 
     .enablePostCssLoader()
 
+    .configureWatchOptions((watchOptions) => {
+        watchOptions.ignored = ['**/node_modules/**', '**/public/build/**'];
+    })
+
     /*
      * FEATURE CONFIG
      *

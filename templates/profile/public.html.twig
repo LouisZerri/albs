@@ -1,0 +1,400 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	{{ user.username }}
+	- Profil - À la bonne station
+{% endblock %}
+
+{% block body %}
+	<div
+		class="max-w-6xl mx-auto px-4">
+
+		{# Section modération pour modo/admin #}
+		{% if is_granted('ROLE_MODERATOR') and not user.isAdmin %}
+			<div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-gray-100">
+				<div class="bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 px-6 py-5">
+					<div class="flex items-center justify-between">
+						<div>
+							<h2 class="text-2xl font-black text-white flex items-center space-x-2">
+								<span>🛡️</span>
+								<span>Modération</span>
+							</h2>
+							<p class="text-sm text-gray-400 mt-1">
+								{% if user.isBanned %}
+									Utilisateur banni le
+									{{ user.bannedAt|date('d/m/Y à H:i') }}
+								{% else %}
+									{{ user.warningCount }}
+									avertissement{{ user.warningCount > 1 ? 's' : '' }}
+									sur 3
+								{% endif %}
+							</p>
+						</div>
+						<div class="flex gap-3">
+							{% if user.isBanned %}
+								<span class="px-4 py-2 bg-red-500 text-white rounded-lg font-medium">
+									🚫 Banni
+								</span>
+							{% else %}
+								{% if not user.isModerator or is_granted('ROLE_ADMIN') %}
+									<button onclick="banUser({{ user.id }}, '{{ user.username|e('js') }}')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors cursor-pointer">
+										🚫 Bannir
+									</button>
+								{% endif %}
+							{% endif %}
+						</div>
+					</div>
+				</div>
+
+				{# Liste des avertissements #}
+				<div class="p-6">
+					{% if warnings|length > 0 %}
+						<div class="space-y-4">
+							{% for warning in warnings %}
+								<div class="border-l-4 {{ warning.relatedPostType == 'direct_ban' ? 'border-red-500 bg-red-50' : 'border-orange-500 bg-orange-50' }} rounded-r-xl p-5">
+									<div class="flex items-start justify-between">
+										<div class="flex-grow">
+											<div class="flex items-center gap-3 mb-2">
+												{% if warning.relatedPostType == 'direct_ban' %}
+													<span class="text-red-600 font-bold text-lg">🚫 Bannissement direct</span>
+												{% else %}
+													<span class="text-orange-600 font-bold text-lg">⚠️ Avertissement</span>
+												{% endif %}
+												<span class="text-gray-400 text-sm">{{ warning.createdAt|date('d/m/Y à H:i') }}</span>
+												{% if warning.acknowledgedAt %}
+													<span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+														✓ Lu
+													</span>
+												{% else %}
+													<span class="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full">
+														Non lu
+													</span>
+												{% endif %}
+											</div>
+											<p class="text-gray-700 leading-relaxed">{{ warning.reason }}</p>
+											<p class="text-sm text-gray-500 mt-2">
+												Par :
+												<strong>{{ warning.moderator.username }}</strong>
+											</p>
+										</div>
+
+										{# Bouton retirer - seulement si pas un ban direct #}
+										{% if warning.relatedPostType != 'direct_ban' %}
+											<form method="post" action="{{ path('app_moderation_remove_warning', {id: warning.id}) }}" onsubmit="return confirm('Retirer cet avertissement ?')" class="ml-4">
+												<input type="hidden" name="_token" value="{{ csrf_token('remove_warning_' ~ warning.id) }}">
+												<button type="submit" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors cursor-pointer">
+													↩️ Retirer
+												</button>
+											</form>
+										{% endif %}
+									</div>
+								</div>
+							{% endfor %}
+						</div>
+					{% else %}
+						<div class="text-center py-8">
+							<span class="text-4xl">✅</span>
+							<p class="text-gray-500 mt-2">Aucun avertissement</p>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
+
+		{# En-tête du profil #}
+		<div
+			class="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-3xl shadow-2xl p-8 mb-8 text-white relative overflow-hidden">
+			{# Cercles décoratifs #}
+			<div class="absolute top-0 right-0 size-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+			<div class="absolute bottom-0 left-0 size-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+
+			<div
+				class="relative flex items-center gap-6 flex-wrap">
+				{# Avatar #}
+				<div class="relative">
+					<div class="size-28 rounded-full overflow-hidden bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/30 shadow-xl">
+						{% if user.avatarUrl %}
+							<img src="{{ asset('uploads/avatars/' ~ user.avatarUrl) }}" alt="{{ user.username }}" class="size-full object-cover">
+						{% else %}
+							<span class="text-6xl">👤</span>
+						{% endif %}
+					</div>
+					{% if user.isBanned %}
+						<div class="absolute -bottom-1 -right-1 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+							BANNI
+						</div>
+					{% endif %}
+				</div>
+
+				<div class="flex-grow">
+					<div class="flex items-center space-x-3 flex-wrap gap-2">
+						<h1 class="text-4xl font-black tracking-tight">{{ user.username }}</h1>
+
+						{# Rang #}
+						{% set totalStations = totalPassed + totalStopped %}
+						{% if totalStations >= 500 %}
+							<span class="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-sm font-bold">🏅 Expert</span>
+						{% elseif totalStations >= 200 %}
+							<span class="px-3 py-1 bg-purple-400 text-purple-900 rounded-full text-sm font-bold">🎯 Voyageur</span>
+						{% elseif totalStations >= 50 %}
+							<span class="px-3 py-1 bg-blue-400 text-blue-900 rounded-full text-sm font-bold">🚇 Explorateur</span>
+						{% else %}
+							<span class="px-3 py-1 bg-green-400 text-green-900 rounded-full text-sm font-bold">🌱 Débutant</span>
+						{% endif %}
+
+						{# Badge Créateur #}
+						{% if user.isAdmin %}
+							<span class="px-3 py-1 text-white rounded-full text-sm font-bold shadow-lg badge-gold">
+								👑 Créateur
+							</span>
+						{% endif %}
+
+						{# Badges affichés #}
+						{% if displayedBadges|length > 0 %}
+							<div class="flex space-x-1">
+								{% for badge in displayedBadges %}
+									<span class="text-3xl hover:scale-125 transition-transform cursor-help" title="{{ badge.name }}">
+										{{ badge.icon }}
+									</span>
+								{% endfor %}
+							</div>
+						{% endif %}
+					</div>
+
+					<p class="text-sm text-blue-200 mt-2 flex items-center space-x-2">
+						<span>📅</span>
+						<span>Membre depuis le
+							{{ user.createdAt|date('d/m/Y') }}</span>
+					</p>
+				</div>
+			</div>
+		</div>
+
+		{# Statistiques globales #}
+		<div class="grid md:grid-cols-3 gap-6 mb-8">
+			<div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg p-6 border border-blue-200 hover:shadow-xl hover:scale-105 transition-all duration-300">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-blue-600 text-sm font-medium mb-1">Stations passées</p>
+						<p class="text-4xl font-black text-blue-700">{{ totalPassed }}</p>
+						<p class="text-xs text-blue-500 mt-1">Traversées en métro</p>
+					</div>
+					<div class="text-5xl">🚶</div>
+				</div>
+				<div class="mt-4 bg-blue-200 rounded-full h-2">
+					<div class="bg-blue-600 h-2 rounded-full" style="width: {{ (totalPassed / 309 * 100)|round }}%"></div>
+				</div>
+			</div>
+
+			<div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl shadow-lg p-6 border border-green-200 hover:shadow-xl hover:scale-105 transition-all duration-300">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-green-600 text-sm font-medium mb-1">Stations visitées</p>
+						<p class="text-4xl font-black text-green-700">{{ totalStopped }}</p>
+						<p class="text-xs text-green-500 mt-1">Arrêts effectués</p>
+					</div>
+					<div class="text-5xl">✅</div>
+				</div>
+				<div class="mt-4 bg-green-200 rounded-full h-2">
+					<div class="bg-green-600 h-2 rounded-full" style="width: {{ (totalStopped / 309 * 100)|round }}%"></div>
+				</div>
+			</div>
+
+			<div class="bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl shadow-lg p-6 border border-purple-200 hover:shadow-xl hover:scale-105 transition-all duration-300">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-purple-600 text-sm font-medium mb-1">Badges débloqués</p>
+						<p class="text-4xl font-black text-purple-700">{{ userBadges|length }}</p>
+						<p class="text-xs text-purple-500 mt-1">Accomplissements</p>
+					</div>
+					<div class="text-5xl">🏆</div>
+				</div>
+				<div class="mt-4 bg-purple-200 rounded-full h-2">
+					<div class="bg-purple-600 h-2 rounded-full" style="width: {{ (userBadges|length / 15 * 100)|round }}%"></div>
+				</div>
+			</div>
+		</div>
+
+		{# Badges débloqués #}
+		{% if userBadges|length > 0 %}
+			<div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-gray-100">
+				<div class="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 px-6 py-5">
+					<div class="flex items-center justify-between">
+						<div>
+							<h2 class="text-2xl font-black text-white flex items-center space-x-2">
+								<span>🏆</span>
+								<span>Badges débloqués</span>
+							</h2>
+							<p class="text-sm text-white/80 mt-1">{{ userBadges|length }}
+								badge{{ userBadges|length > 1 ? 's' : '' }}
+								obtenu{{ userBadges|length > 1 ? 's' : '' }}</p>
+						</div>
+						<div class="text-5xl">🎖️</div>
+					</div>
+				</div>
+				<div class="p-6 bg-gradient-to-b from-gray-50 to-white">
+					<div class="flex flex-wrap gap-3">
+						{% for badge in userBadges %}
+							<div class="flex items-center gap-2 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-300 rounded-full px-4 py-2 hover:shadow-md transition-shadow">
+								<span class="text-2xl">{{ badge.icon }}</span>
+								<span class="font-semibold text-gray-800">{{ badge.name }}</span>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		{% endif %}
+
+		{# Activité récente avec onglets #}
+		<div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-gray-100">
+			<div class="bg-gradient-to-r from-gray-800 via-gray-900 to-black px-6 py-5">
+				<div class="flex items-center justify-between">
+					<div>
+						<h2 class="text-2xl font-black text-white flex items-center space-x-2">
+							<span>📊</span>
+							<span>Activité sur le forum</span>
+						</h2>
+						<p class="text-sm text-gray-400 mt-1">
+							{{ recentDiscussions|length }}
+							discussion{{ recentDiscussions|length > 1 ? 's' : '' }}
+							•
+							{{ recentReplies|length }}
+							réponse{{ recentReplies|length > 1 ? 's' : '' }}
+						</p>
+					</div>
+					<div class="text-5xl">💬</div>
+				</div>
+			</div>
+
+			<div
+				x-data="{ activeTab: 'discussions' }">
+				{# Onglets #}
+				<div class="flex border-b border-gray-200">
+					<button @click="activeTab = 'discussions'" :class="activeTab === 'discussions' ? 'border-blue-500 text-blue-600 bg-blue-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'" class="flex-1 px-6 py-4 text-sm font-semibold border-b-2 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
+						<span>💬</span>
+						<span>Discussions</span>
+						<span class="px-2 py-0.5 rounded-full text-xs" :class="activeTab === 'discussions' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'">
+							{{ recentDiscussions|length }}
+						</span>
+					</button>
+					<button @click="activeTab = 'replies'" :class="activeTab === 'replies' ? 'border-green-500 text-green-600 bg-green-50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'" class="flex-1 px-6 py-4 text-sm font-semibold border-b-2 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
+						<span>✍️</span>
+						<span>Réponses</span>
+						<span class="px-2 py-0.5 rounded-full text-xs" :class="activeTab === 'replies' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'">
+							{{ recentReplies|length }}
+						</span>
+					</button>
+				</div>
+
+				{# Contenu des onglets #}
+				<div
+					class="p-6">
+					{# Tab Discussions #}
+					<div x-show="activeTab === 'discussions'" x-transition>
+						{% if recentDiscussions|length > 0 %}
+							<div class="max-h-80 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
+								{% for discussion in recentDiscussions %}
+									<a href="{{ path('app_discussion_show', {id: discussion.id}) }}" class="block p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100 hover:border-gray-200 hover:shadow-sm">
+										<div class="flex items-start justify-between gap-4">
+											<div class="flex-grow min-w-0">
+												<p class="font-semibold text-gray-900 truncate">{{ discussion.title }}</p>
+												<div class="flex items-center gap-3 mt-2 text-xs text-gray-500">
+													<span class="flex items-center gap-1">
+														<span class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background-color: {{ discussion.line.color }};">
+															{{ discussion.line.number }}
+														</span>
+														Ligne
+														{{ discussion.line.number }}
+													</span>
+													<span>•</span>
+													<span>{{ discussion.createdAt|date('d/m/Y') }}</span>
+												</div>
+											</div>
+											<div class="flex items-center gap-3 text-sm text-gray-400 flex-shrink-0">
+												<span class="flex items-center gap-1">
+													<span>💬</span>
+													{{ discussion.replyCount }}
+												</span>
+												<span class="flex items-center gap-1">
+													<span>👁️</span>
+													{{ discussion.viewCount }}
+												</span>
+											</div>
+										</div>
+									</a>
+								{% endfor %}
+							</div>
+
+							{# Indicateur de scroll si beaucoup de contenu #}
+							{% if recentDiscussions|length > 3 %}
+								<div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+									<span class="text-xs text-gray-400">
+										↕️ Scrollez pour voir plus
+									</span>
+									<a href="{{ path('app_forum') }}?q={{ user.username }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
+										Voir tout sur le forum
+										<span>→</span>
+									</a>
+								</div>
+							{% endif %}
+						{% else %}
+							<div class="text-center py-12">
+								<span class="text-5xl">💭</span>
+								<p class="text-gray-500 mt-3 font-medium">Aucune discussion pour le moment</p>
+							</div>
+						{% endif %}
+					</div>
+
+					{# Tab Réponses #}
+					<div x-show="activeTab === 'replies'" x-transition>
+						{% if recentReplies|length > 0 %}
+							<div class="max-h-80 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
+								{% for reply in recentReplies %}
+									<a href="{{ path('app_discussion_show', {id: reply.discussion.id}) }}" class="block p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100 hover:border-gray-200 hover:shadow-sm">
+										<p class="text-gray-700 text-sm line-clamp-2">{{ reply.content|slice(0, 120) }}{{ reply.content|length > 120 ? '...' : '' }}</p>
+										<div class="flex items-center gap-2 mt-3 text-xs text-gray-500">
+											<span class="text-gray-400">Dans :</span>
+											<span class="font-medium text-gray-700 truncate max-w-xs">{{ reply.discussion.title }}</span>
+											<span>•</span>
+											<span>{{ reply.createdAt|date('d/m/Y') }}</span>
+										</div>
+									</a>
+								{% endfor %}
+							</div>
+
+							{# Indicateur de scroll si beaucoup de contenu #}
+							{% if recentReplies|length > 3 %}
+								<div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+									<span class="text-xs text-gray-400">
+										↕️ Scrollez pour voir plus
+									</span>
+									<a href="{{ path('app_forum') }}?q={{ user.username }}" class="text-sm text-green-600 hover:text-green-800 font-medium flex items-center gap-1">
+										Voir tout sur le forum
+										<span>→</span>
+									</a>
+								</div>
+							{% endif %}
+						{% else %}
+							<div class="text-center py-12">
+								<span class="text-5xl">✏️</span>
+								<p class="text-gray-500 mt-3 font-medium">Aucune réponse pour le moment</p>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{# Retour #}
+		<div class="mb-8 text-center">
+			<a href="{{ path('app_forum') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+				<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+				</svg>
+				Retour au forum
+			</a>
+		</div>
+	</div>
+
+	{% include 'components/_modal.html.twig' %}
+{% endblock %}

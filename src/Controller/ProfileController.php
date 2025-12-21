@@ -2,11 +2,16 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Entity\Warning;
 use App\Form\ProfileEditFormType;
 use App\Repository\LineRepository;
 use App\Repository\UserStationRepository;
 use App\Repository\BadgeRepository;
-use App\Service\BadgeService;
+use App\Repository\LineDiscussionReplyRepository;
+use App\Repository\LineDiscussionRepository;
+use App\Repository\UserRepository;
+use App\Repository\WarningRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -14,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ProfileController extends AbstractController
@@ -30,6 +36,18 @@ class ProfileController extends AbstractController
 
         if (!$user) {
             return $this->redirectToRoute('app_login');
+        }
+
+        if (!$user instanceof User) {
+            throw new \LogicException('L\'utilisateur doit être une instance de User');
+        }
+
+        // Compter uniquement les avertissements NON-LUS
+        $unreadWarningsCount = 0;
+        foreach ($user->getWarnings() as $warning) {
+            if (!$warning->isAcknowledged()) {
+                $unreadWarningsCount++;
+            }
         }
 
         // OPTIMISATION : Récupérer les UserStations avec les Stations en une seule requête
@@ -130,6 +148,7 @@ class ProfileController extends AbstractController
 
         return $this->render('profile/index.html.twig', [
             'user' => $user,
+            'unreadWarningsCount' => $unreadWarningsCount,
             'totalPassed' => $totalPassed,
             'totalStopped' => $totalStopped,
             'lineStats' => $lineStats,
@@ -383,5 +402,125 @@ class ProfileController extends AbstractController
         }
 
         return 0;
+    }
+
+    #[Route('/profile/warnings', name: 'app_profile_warnings')]
+    public function warnings(WarningRepository $warningRepository): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $warnings = $warningRepository->findBy(
+            ['user' => $user],
+            ['createdAt' => 'DESC']
+        );
+
+        return $this->render('profile/warnings.html.twig', [
+            'user' => $user,
+            'warnings' => $warnings,
+        ]);
+    }
+
+    #[Route('/profile/warnings/{id}/acknowledge', name: 'app_profile_acknowledge_warning', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function acknowledgeWarning(
+        Warning $warning,
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            throw new \LogicException('L\'utilisateur doit être une instance de User');
+        }
+
+        // Vérifier que l'avertissement appartient bien à l'utilisateur connecté
+        if ($warning->getUser()->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException('Cet avertissement ne vous appartient pas.');
+        }
+
+        if ($this->isCsrfTokenValid('acknowledge_warning', $request->request->get('_token'))) {
+            $warning->setAcknowledgedAt(new \DateTimeImmutable());
+            $entityManager->flush();
+
+            $this->addFlash('success', '✅ Avertissement marqué comme lu.');
+        }
+
+        return $this->redirectToRoute('app_profile_warnings');
+    }
+
+    #[Route('/profile/{username}', name: 'app_profile_public')]
+    public function publicProfile(
+        string $username,
+        UserRepository $userRepository,
+        UserStationRepository $userStationRepository,
+        LineDiscussionRepository $discussionRepository,
+        LineDiscussionReplyRepository $replyRepository,
+        WarningRepository $warningRepository
+    ): Response {
+
+        $user = $userRepository->findOneBy(['username' => $username]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur introuvable');
+        }
+
+        // Si c'est son propre profil, rediriger vers le profil privé
+        if ($this->getUser() && $this->getUser()->getUserIdentifier() === $user->getUserIdentifier()) {
+            return $this->redirectToRoute('app_profile');
+        }
+
+        // Statistiques
+        $userStations = $userStationRepository->findByUserWithStations($user);
+
+        $totalPassed = 0;
+        $totalStopped = 0;
+        foreach ($userStations as $userStation) {
+            if ($userStation->isPassed()) {
+                $totalPassed++;
+            }
+            if ($userStation->isStopped()) {
+                $totalStopped++;
+            }
+        }
+
+        // Badges débloqués
+        $userBadges = $user->getBadges()->toArray();
+        $displayedBadgeIds = $user->getDisplayedBadges();
+
+        // Filtrer les badges affichés
+        $displayedBadges = array_filter($userBadges, function ($badge) use ($displayedBadgeIds) {
+            return in_array($badge->getId(), $displayedBadgeIds);
+        });
+
+        // Activité récente : dernières discussions (optimisé)
+        $recentDiscussions = $discussionRepository->findByAuthorWithRelations($user, 5);
+
+        // Activité récente : dernières réponses (optimisé)
+        $recentReplies = $replyRepository->findByAuthorWithDiscussion($user, 5);
+
+        // Avertissements (pour les modérateurs)
+        $warnings = [];
+        if ($this->isGranted('ROLE_MODERATOR')) {
+            $warnings = $warningRepository->findBy(
+                ['user' => $user],
+                ['createdAt' => 'DESC']
+            );
+        }
+
+        return $this->render('profile/public.html.twig', [
+            'user' => $user,
+            'totalPassed' => $totalPassed,
+            'totalStopped' => $totalStopped,
+            'userBadges' => $userBadges,
+            'displayedBadges' => $displayedBadges,
+            'recentDiscussions' => $recentDiscussions,
+            'recentReplies' => $recentReplies,
+            'warnings' => $warnings,
+        ]);
     }
 }

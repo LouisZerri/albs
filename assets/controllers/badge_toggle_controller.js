@@ -66,11 +66,11 @@ export default class extends Controller {
         if (isDisplayed) {
             iconSpan.textContent = '✓';
             textSpan.textContent = 'Affiché';
-            button.className = 'w-full font-semibold text-sm py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg';
+            button.className = 'w-full font-semibold text-xs py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer bg-green-500 text-white hover:bg-green-600';
         } else {
             iconSpan.textContent = '+';
             textSpan.textContent = 'Afficher';
-            button.className = 'w-full font-semibold text-sm py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-md hover:shadow-lg';
+            button.className = 'w-full font-semibold text-xs py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer bg-blue-500 text-white hover:bg-blue-600';
         }
         
         button.appendChild(iconSpan);
@@ -80,7 +80,7 @@ export default class extends Controller {
     updateProfileHeader(isDisplayed) {
         // Récupérer l'icône et le nom du badge
         const badgeCard = this.element;
-        const badgeIcon = badgeCard.querySelector('.text-5xl');
+        const badgeIcon = badgeCard.querySelector('.text-4xl');
         const badgeName = badgeCard.querySelector('.font-bold.text-gray-900');
         
         if (!badgeIcon || !badgeName) {
@@ -91,11 +91,30 @@ export default class extends Controller {
         const icon = badgeIcon.textContent.trim();
         const name = badgeName.textContent.trim();
 
-        // Trouver le container des badges dans le header
-        const badgeContainer = document.querySelector('.bg-gradient-to-br.from-blue-600 .flex.space-x-1');
+        // Trouver le container des badges dans la sidebar
+        // Chercher dans la carte profil de la sidebar
+        const sidebarCard = document.querySelector('.lg\\:sticky .bg-gradient-to-br');
+        let badgeContainer = sidebarCard?.querySelector('.flex.justify-center.gap-1');
+        
+        // Si le container n'existe pas encore, le créer
+        if (!badgeContainer && sidebarCard) {
+            const usernameSection = sidebarCard.querySelector('.text-center');
+            if (usernameSection) {
+                badgeContainer = document.createElement('div');
+                badgeContainer.className = 'flex justify-center gap-1 mt-3';
+                
+                // Insérer après les rangs/badges créateur
+                const ranksContainer = usernameSection.querySelector('.flex.justify-center.gap-2');
+                if (ranksContainer) {
+                    ranksContainer.after(badgeContainer);
+                } else {
+                    usernameSection.appendChild(badgeContainer);
+                }
+            }
+        }
         
         if (!badgeContainer) {
-            console.error('Badge container non trouvé dans le header');
+            console.error('Badge container non trouvé dans la sidebar');
             return;
         }
 
@@ -108,7 +127,7 @@ export default class extends Controller {
             // Ajouter le badge s'il n'existe pas
             if (!existingBadge) {
                 const newBadge = document.createElement('span');
-                newBadge.className = 'text-3xl hover:scale-125 transition-transform cursor-help';
+                newBadge.className = 'text-2xl hover:scale-125 transition-transform cursor-help';
                 newBadge.title = name;
                 newBadge.textContent = icon;
                 
@@ -133,6 +152,10 @@ export default class extends Controller {
                 
                 setTimeout(() => {
                     existingBadge.remove();
+                    // Si plus de badges, supprimer le container
+                    if (badgeContainer.children.length === 0) {
+                        badgeContainer.remove();
+                    }
                 }, 300);
             }
         }

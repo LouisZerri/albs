@@ -18,6 +18,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    // ========== CONSTANTES ==========
+
+    private const ALLOWED_STATUSES = ['pending', 'active', 'banned', 'deleted'];
+
+    // ========== PROPRIÉTÉS : IDENTITÉ ==========
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -26,17 +32,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column]
-    private array $roles = [];
+    #[ORM\Column(length: 100, unique: true)]
+    private ?string $username = null;
 
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 100, unique: true)]
-    private ?string $username = null;
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
+
+    // ========== PROPRIÉTÉS : PROFIL ==========
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatarUrl = null;
+
+    #[ORM\ManyToOne(targetEntity: Line::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Line $favoriteLine = null;
+
+    // ========== PROPRIÉTÉS : STATUT DU COMPTE ==========
+
+    /**
+     * Statut du compte : pending, active, banned, deleted
+     */
+    #[ORM\Column(length: 20)]
+    private string $accountStatus = 'pending';
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $bannedAt = null;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $warningCount = 0;
+
+    // ========== PROPRIÉTÉS : VÉRIFICATION EMAIL ==========
+
+    #[ORM\Column]
+    private bool $isEmailVerified = false;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $emailVerificationToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $emailVerificationTokenExpiresAt = null;
+
+    // ========== PROPRIÉTÉS : RÉINITIALISATION MOT DE PASSE ==========
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $passwordResetToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $passwordResetTokenExpiresAt = null;
+
+    // ========== PROPRIÉTÉS : CONNEXION ==========
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastLoginAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $rememberMeToken = null;
+
+    // ========== PROPRIÉTÉS : TIMESTAMPS ==========
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -44,57 +99,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    /**
-     * Statut du compte : active, pending, suspended, deleted
-     */
-    #[ORM\Column(length: 20)]
-    private string $accountStatus = 'pending';
-
-    /**
-     * Email vérifié ou non
-     */
-    #[ORM\Column]
-    private bool $isEmailVerified = false;
-
-    /**
-     * Token de vérification d'email
-     */
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $emailVerificationToken = null;
-
-    /**
-     * Date d'expiration du token de vérification
-     */
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $emailVerificationTokenExpiresAt = null;
-
-    /**
-     * Token de réinitialisation de mot de passe
-     */
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $passwordResetToken = null;
-
-    /**
-     * Date d'expiration du token de réinitialisation
-     */
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $passwordResetTokenExpiresAt = null;
-
-    /**
-     * Date de la dernière connexion
-     */
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $lastLoginAt = null;
-
-    /**
-     * Remember me token
-     */
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $rememberMeToken = null;
-
-    #[ORM\ManyToOne(targetEntity: Line::class)]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?Line $favoriteLine = null;
+    // ========== PROPRIÉTÉS : RELATIONS ==========
 
     /**
      * @var Collection<int, UserStation>
@@ -114,12 +119,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::JSON)]
     private array $displayedBadges = [];
 
+    /**
+     * @var Collection<int, Warning>
+     */
+    #[ORM\OneToMany(targetEntity: Warning::class, mappedBy: 'user')]
+    private Collection $warnings;
+
+    // ========== CONSTRUCTEUR & LIFECYCLE ==========
+
     public function __construct()
     {
-        $this->userStations = new ArrayCollection();
-        $this->badges = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->roles = ['ROLE_USER'];
+        $this->userStations = new ArrayCollection();
+        $this->badges = new ArrayCollection();
+        $this->warnings = new ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -128,7 +142,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    // ========== GETTERS / SETTERS BASIQUES ==========
+    // ========== MÉTHODES : IDENTITÉ ==========
 
     public function getId(): ?int
     {
@@ -151,36 +165,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
-    public function getRoles(): array
+    public function getUsername(): ?string
     {
-        $roles = $this->roles;
-        // Garantir que chaque utilisateur a au moins ROLE_USER
-        $roles[] = 'ROLE_USER';
-        return array_unique($roles);
+        return $this->username;
     }
 
-    public function setRoles(array $roles): static
+    public function setUsername(string $username): static
     {
-        $this->roles = $roles;
+        $this->username = $username;
         return $this;
-    }
-
-    public function addRole(string $role): static
-    {
-        if (!in_array($role, $this->roles)) {
-            $this->roles[] = $role;
-        }
-        return $this;
-    }
-
-    public function hasRole(string $role): bool
-    {
-        return in_array($role, $this->getRoles());
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->hasRole('ROLE_ADMIN');
     }
 
     public function getPassword(): ?string
@@ -196,19 +189,55 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
-        // Si vous stockez des données temporaires sensibles sur l'utilisateur, effacez-les ici
+        // Effacer les données temporaires sensibles si nécessaire
     }
 
-    public function getUsername(): ?string
+    // ========== MÉTHODES : RÔLES ==========
+
+    public function getRoles(): array
     {
-        return $this->username;
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
     }
 
-    public function setUsername(string $username): static
+    public function setRoles(array $roles): static
     {
-        $this->username = $username;
+        $this->roles = $roles;
         return $this;
     }
+
+    public function addRole(string $role): static
+    {
+        if (!in_array($role, $this->roles, true)) {
+            $this->roles[] = $role;
+        }
+        return $this;
+    }
+
+    public function removeRole(string $role): static
+    {
+        $this->roles = array_values(array_diff($this->roles, [$role]));
+        return $this;
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return in_array($role, $this->getRoles(), true);
+    }
+
+    public function isAdmin(): bool
+    {
+        return in_array('ROLE_ADMIN', $this->roles, true);
+    }
+
+    public function isModerator(): bool
+    {
+        return in_array('ROLE_MODERATOR', $this->roles, true) || $this->isAdmin();
+    }
+
+    // ========== MÉTHODES : PROFIL ==========
 
     public function getAvatarUrl(): ?string
     {
@@ -221,29 +250,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getFavoriteLine(): ?Line
     {
-        return $this->createdAt;
+        return $this->favoriteLine;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setFavoriteLine(?Line $favoriteLine): static
     {
-        $this->createdAt = $createdAt;
+        $this->favoriteLine = $favoriteLine;
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
-    }
-
-    // ========== STATUT DU COMPTE ==========
+    // ========== MÉTHODES : STATUT DU COMPTE ==========
 
     public function getAccountStatus(): string
     {
@@ -252,17 +270,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setAccountStatus(string $accountStatus): static
     {
-        $allowedStatuses = ['active', 'pending', 'suspended', 'deleted'];
-        if (!in_array($accountStatus, $allowedStatuses)) {
-            throw new \InvalidArgumentException('Statut de compte invalide');
+        if (!in_array($accountStatus, self::ALLOWED_STATUSES, true)) {
+            throw new \InvalidArgumentException('Statut de compte invalide : ' . $accountStatus);
         }
         $this->accountStatus = $accountStatus;
         return $this;
-    }
-
-    public function isActive(): bool
-    {
-        return $this->accountStatus === 'active';
     }
 
     public function isPending(): bool
@@ -270,9 +282,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->accountStatus === 'pending';
     }
 
-    public function isSuspended(): bool
+    public function isActive(): bool
     {
-        return $this->accountStatus === 'suspended';
+        return $this->accountStatus === 'active';
+    }
+
+    public function isBanned(): bool
+    {
+        return $this->accountStatus === 'banned';
     }
 
     public function isDeleted(): bool
@@ -286,9 +303,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function suspend(): static
+    public function ban(): static
     {
-        $this->accountStatus = 'suspended';
+        $this->accountStatus = 'banned';
+        $this->bannedAt = new \DateTimeImmutable();
         return $this;
     }
 
@@ -297,6 +315,59 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->accountStatus = 'deleted';
         return $this;
     }
+
+    public function getBannedAt(): ?\DateTimeImmutable
+    {
+        return $this->bannedAt;
+    }
+
+    // ========== MÉTHODES : AVERTISSEMENTS ==========
+
+    public function getWarningCount(): int
+    {
+        return $this->warningCount;
+    }
+
+    public function setWarningCount(int $count): static
+    {
+        $this->warningCount = $count;
+        return $this;
+    }
+
+    public function incrementWarningCount(): static
+    {
+        $this->warningCount++;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Warning>
+     */
+    public function getWarnings(): Collection
+    {
+        return $this->warnings;
+    }
+
+    public function addWarning(Warning $warning): static
+    {
+        if (!$this->warnings->contains($warning)) {
+            $this->warnings->add($warning);
+            $warning->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeWarning(Warning $warning): static
+    {
+        if ($this->warnings->removeElement($warning)) {
+            if ($warning->getUser() === $this) {
+                $warning->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    // ========== MÉTHODES : VÉRIFICATION EMAIL ==========
 
     public function isEmailVerified(): bool
     {
@@ -331,9 +402,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Génère un token de vérification d'email (valide 24h)
-     */
     public function generateEmailVerificationToken(): static
     {
         $this->emailVerificationToken = bin2hex(random_bytes(32));
@@ -341,9 +409,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Vérifie si le token de vérification est valide
-     */
     public function isEmailVerificationTokenValid(): bool
     {
         if (!$this->emailVerificationToken || !$this->emailVerificationTokenExpiresAt) {
@@ -352,22 +417,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->emailVerificationTokenExpiresAt > new \DateTimeImmutable();
     }
 
-    /**
-     * Valide l'email (après clic sur le lien)
-     */
     public function verifyEmail(): static
     {
         $this->isEmailVerified = true;
         $this->emailVerificationToken = null;
         $this->emailVerificationTokenExpiresAt = null;
-        
-        // Si le compte était en attente, l'activer
-        if ($this->isPending()) {
-            $this->activate();
-        }
-        
+        $this->activate();
         return $this;
     }
+
+    // ========== MÉTHODES : RÉINITIALISATION MOT DE PASSE ==========
 
     public function getPasswordResetToken(): ?string
     {
@@ -391,9 +450,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Génère un token de réinitialisation de mot de passe (valide 1h)
-     */
     public function generatePasswordResetToken(): static
     {
         $this->passwordResetToken = bin2hex(random_bytes(32));
@@ -401,9 +457,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Vérifie si le token de réinitialisation est valide
-     */
     public function isPasswordResetTokenValid(): bool
     {
         if (!$this->passwordResetToken || !$this->passwordResetTokenExpiresAt) {
@@ -412,9 +465,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->passwordResetTokenExpiresAt > new \DateTimeImmutable();
     }
 
-    /**
-     * Réinitialise le mot de passe et supprime le token
-     */
     public function resetPassword(string $newPassword): static
     {
         $this->password = $newPassword;
@@ -423,16 +473,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getRememberMeToken(): ?string
-    {
-        return $this->rememberMeToken;
-    }
-
-    public function setRememberMeToken(?string $rememberMeToken): static
-    {
-        $this->rememberMeToken = $rememberMeToken;
-        return $this;
-    }
+    // ========== MÉTHODES : CONNEXION ==========
 
     public function getLastLoginAt(): ?\DateTimeImmutable
     {
@@ -451,16 +492,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getFavoriteLine(): ?Line
+    public function getRememberMeToken(): ?string
     {
-        return $this->favoriteLine;
+        return $this->rememberMeToken;
     }
 
-    public function setFavoriteLine(?Line $favoriteLine): static
+    public function setRememberMeToken(?string $rememberMeToken): static
     {
-        $this->favoriteLine = $favoriteLine;
+        $this->rememberMeToken = $rememberMeToken;
         return $this;
     }
+
+    // ========== MÉTHODES : TIMESTAMPS ==========
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    // ========== MÉTHODES : STATIONS ==========
 
     /**
      * @return Collection<int, UserStation>
@@ -488,6 +555,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
         return $this;
     }
+
+    // ========== MÉTHODES : BADGES ==========
 
     /**
      * @return Collection<int, Badge>
@@ -521,13 +590,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setDisplayedBadges(array $displayedBadges): static
     {
-        $this->displayedBadges = array_slice($displayedBadges, 0, 3); // Max 3
+        $this->displayedBadges = array_slice($displayedBadges, 0, 3);
         return $this;
     }
 
     public function addDisplayedBadge(int $badgeId): static
     {
-        if (!in_array($badgeId, $this->displayedBadges) && count($this->displayedBadges) < 3) {
+        if (!in_array($badgeId, $this->displayedBadges, true) && count($this->displayedBadges) < 3) {
             $this->displayedBadges[] = $badgeId;
         }
         return $this;
@@ -541,6 +610,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         ));
         return $this;
     }
+
+    // ========== MÉTHODES : SÉRIALISATION ==========
 
     public function __serialize(): array
     {

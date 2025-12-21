@@ -1,36 +1,49 @@
 <nav class="bg-white shadow-lg">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex items-center">
-                <a href="{{ path('app_home') }}" class="flex items-center space-x-2 hover:opacity-80 transition">
-                    <span class="text-3xl">🚇</span>
-                    <span class="text-xl font-bold text-gray-900">À la bonne station</span>
-                </a>
-            </div>
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<div class="flex justify-between h-16">
+			<div class="flex items-center">
+				<a href="{{ path('app_home') }}" class="flex items-center space-x-2 hover:opacity-80 transition">
+					<span class="text-3xl">🚇</span>
+					<span class="text-xl font-bold text-gray-900">À la bonne station</span>
+				</a>
+			</div>
 
-            <div class="flex items-center space-x-4">
-                {% if app.user %}
-                    {# Menu utilisateur connecté #}
-                    <a href="{{ path('app_lines') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
-                        Lignes
-                    </a>
-                    <a href="{{ path('app_profile') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
-                        Mon profil
-                    </a>
-                    <span class="text-gray-600 hidden sm:inline">👤 {{ app.user.username }}</span>
-                    <a href="{{ path('app_logout') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
-                        Déconnexion
-                    </a>
-                {% else %}
-                    {# Menu visiteur #}
-                    <a href="{{ path('app_login') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
-                        Connexion
-                    </a>
-                    <a href="{{ path('app_register') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
-                        Inscription
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+			<div class="flex items-center space-x-4">
+				{% if app.user %}
+					{# Menu utilisateur connecté #}
+					<a href="{{ path('app_lines') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
+						🛤️ Lignes
+					</a>
+					<a href="{{ path('app_forum') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
+						💬 Forum
+					</a>
+					{% if is_granted('ROLE_MODERATOR') %}
+						<a href="{{ path('app_moderation') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
+							🛡️ Modération
+						</a>
+					{% endif %}
+
+					{% if is_granted('ROLE_ADMIN') %}
+						<a href="#" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
+							⚙️ Administration
+						</a>
+					{% endif %}
+					<a href="{{ path('app_profile') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
+						👤 {{ app.user.username }}</span>
+					</a>
+					<a href="{{ path('app_logout') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
+						Déconnexion
+					</a>
+				{% else %}
+					{# Menu visiteur #}
+					<a href="{{ path('app_login') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
+						Connexion
+					</a>
+					<a href="{{ path('app_register') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
+						Inscription
+					</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
 </nav>

@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ligne
+	{{ line.number }}
+	- Forum - À la bonne station
+{% endblock %}
+
+{% block body %}
+	<div
+		class="max-w-7xl mx-auto px-4 py-8">
+		{# Breadcrumb #}
+		<div class="mb-6">
+			<nav class="flex items-center text-sm text-gray-600">
+				<a href="{{ path('app_forum') }}" class="hover:text-blue-600">Forum</a>
+				<span class="mx-2">/</span>
+				<span class="text-gray-900 font-medium">Ligne
+					{{ line.number }}</span>
+			</nav>
+		</div>
+
+		{# En-tête de la ligne #}
+		<div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+			<div class="flex items-center justify-between mb-6">
+				<div class="flex items-center space-x-6">
+					<div class="inline-flex items-center justify-center w-32 h-32 rounded-full text-white font-bold text-7xl" style="background-color: {{ line.color }}; color: {{ line.textColor }};">
+						{% if 'bis' in line.number %}
+							{{ line.number|replace({'bis': ''}) }}<span class="text-4xl">bis</span>
+						{% else %}
+							{{ line.number }}
+						{% endif %}
+					</div>
+					<div>
+						<h1 class="text-4xl font-bold text-gray-900 mb-2">Ligne
+							{{ line.number }}</h1>
+						<p class="text-xl text-gray-600">{{ line.name }}</p>
+					</div>
+				</div>
+				{% if app.user and not app.user.isBanned %}
+					<a href="{{ path('app_discussion_new', {lineNumber: line.number}) }}" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200">
+						Nouvelle discussion
+					</a>
+				{% endif %}
+			</div>
+		</div>
+
+		{# Liste des discussions #}
+		<div class="bg-white rounded-xl shadow-lg overflow-hidden">
+			<div class="px-8 py-6 border-b border-gray-200">
+				<h2 class="text-3xl font-bold text-gray-900">Discussions</h2>
+				<p class="text-lg text-gray-600 mt-1">{{ discussions|length }}
+					discussion{{ discussions|length > 1 ? 's' : '' }}</p>
+			</div>
+
+			{% if discussions is empty %}
+				<div class="p-12 text-center pb-10">
+					<h3 class="text-2xl font-bold text-gray-900 mt-4">Aucune discussion</h3>
+					<p class="text-lg text-gray-600 mt-2">Soyez le premier à créer une discussion sur cette ligne !</p>
+					{% if app.user and not app.user.isBanned %}
+						<a href="{{ path('app_discussion_new', {lineNumber: line.number}) }}" class="inline-block mt-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200">
+							Créer une discussion
+						</a>
+					{% endif %}
+				</div>
+			{% else %}
+				<div class="divide-y divide-gray-200">
+					{% for discussion in discussions %}
+						<a href="{{ path('app_discussion_show', {id: discussion.id}) }}" class="block p-6 hover:bg-gray-50 transition-colors">
+							<div class="flex items-start justify-between">
+								<div class="flex-grow">
+									<div class="flex items-center gap-3 mb-2">
+										{% if discussion.isPinned %}
+											<span class="text-2xl" title="Épinglé">📌</span>
+										{% endif %}
+										{% if discussion.isLocked %}
+											<span class="text-2xl" title="Verrouillé">🔒</span>
+										{% endif %}
+										<h3 class="font-bold text-gray-900 hover:text-blue-600 text-xl">
+											{{ discussion.title }}
+										</h3>
+									</div>
+									<div class="flex items-center gap-4 text-sm text-gray-600 mt-3">
+										<span
+											class="flex items-center gap-2">
+											{# Avatar de l'auteur #}
+											<div class="w-6 h-6 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+												{% if discussion.author.avatarUrl %}
+													<img src="{{ asset('uploads/avatars/' ~ discussion.author.avatarUrl) }}" alt="{{ discussion.author.username }}" class="w-full h-full object-cover">
+												{% else %}
+													<span class="text-white font-bold text-xs">{{ discussion.author.username|first|upper }}</span>
+												{% endif %}
+											</div>
+											{{ discussion.author.username }}
+										</span>
+										<span>•</span>
+										<span>{{ discussion.createdAt|date('d/m/Y à H:i') }}</span>
+										{% if discussion.latestReply %}
+											<span>•</span>
+											<span>Dernière réponse :
+												{{ discussion.latestReply.createdAt|date('d/m/Y à H:i') }}</span>
+										{% endif %}
+									</div>
+								</div>
+								<div class="text-base text-gray-600 text-right ml-6">
+									<div class="font-bold text-gray-900 text-lg">💬
+										{{ discussion.replyCount }}</div>
+									<div class="mt-1">👁️
+										{{ discussion.viewCount }}</div>
+								</div>
+							</div>
+						</a>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}

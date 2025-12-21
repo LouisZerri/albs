@@ -8,6 +8,9 @@ use Doctrine\Persistence\ObjectManager;
 
 class BadgeFixtures extends Fixture
 {
+
+    public const BADGE_NEW_ACCOUNT = 'badge_new_account';
+
     public function load(ObjectManager $manager): void
     {
         $badges = [
@@ -158,6 +161,10 @@ class BadgeFixtures extends Fixture
             $badge->setCriteria($badgeData['criteria']);
 
             $manager->persist($badge);
+
+            if ($badgeData['type'] === 'account') {
+                $this->addReference(self::BADGE_NEW_ACCOUNT, $badge);
+            }
         }
 
         $manager->flush();

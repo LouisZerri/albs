@@ -1,0 +1,58 @@
+{% if pageCount > 1 %}
+    <nav class="flex items-center justify-center space-x-2">
+        {% if previous is defined %}
+            <a href="{{ path(route, query|merge({(pageParameterName): previous})) }}" 
+               class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                ← Précédent
+            </a>
+        {% else %}
+            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                ← Précédent
+            </span>
+        {% endif %}
+
+        {% if startPage > 1 %}
+            <a href="{{ path(route, query|merge({(pageParameterName): 1})) }}" 
+               class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                1
+            </a>
+            {% if startPage > 2 %}
+                <span class="px-2 text-gray-500">...</span>
+            {% endif %}
+        {% endif %}
+
+        {% for page in pagesInRange %}
+            {% if page == current %}
+                <span class="px-3 py-2 text-sm font-bold text-white bg-blue-600 border border-blue-600 rounded">
+                    {{ page }}
+                </span>
+            {% else %}
+                <a href="{{ path(route, query|merge({(pageParameterName): page})) }}" 
+                   class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                    {{ page }}
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if endPage < pageCount %}
+            {% if endPage < pageCount - 1 %}
+                <span class="px-2 text-gray-500">...</span>
+            {% endif %}
+            <a href="{{ path(route, query|merge({(pageParameterName): pageCount})) }}" 
+               class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                {{ pageCount }}
+            </a>
+        {% endif %}
+
+        {% if next is defined %}
+            <a href="{{ path(route, query|merge({(pageParameterName): next})) }}" 
+               class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Suivant →
+            </a>
+        {% else %}
+            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                Suivant →
+            </span>
+        {% endif %}
+    </nav>
+{% endif %}

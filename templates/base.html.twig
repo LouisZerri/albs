@@ -29,7 +29,7 @@
     
     {# Contenu principal avec conteneur #}
     {% block body_wrapper %}
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full min-h-[calc(100vh-20rem)]">
+    <main class="flex-grow py-8 w-full min-h-[calc(100vh-20rem)] {% block main_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8{% endblock %}">
         {% block body %}{% endblock %}
     </main>
     {% endblock %}

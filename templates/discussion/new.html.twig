@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle discussion - Ligne
+	{{ line.number }}
+	- À la bonne station
+{% endblock %}
+
+{% block body %}
+	<div
+		class="max-w-5xl mx-auto px-4 py-8">
+		{# Breadcrumb #}
+		<div class="mb-6">
+			<nav class="flex items-center text-sm text-gray-600">
+				<a href="{{ path('app_forum') }}" class="hover:text-blue-600">Forum</a>
+				<span class="mx-2">/</span>
+				<a href="{{ path('app_forum_line', {lineNumber: line.number}) }}" class="hover:text-blue-600">Ligne
+					{{ line.number }}</a>
+				<span class="mx-2">/</span>
+				<span class="text-gray-900 font-medium">Nouvelle discussion</span>
+			</nav>
+		</div>
+
+		{# En-tête #}
+		<div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+			<div class="flex items-center space-x-6">
+				<div class="inline-flex items-center justify-center w-24 h-24 rounded-full text-white font-bold text-5xl" style="background-color: {{ line.color }}; color: {{ line.textColor }};">
+					{% if 'bis' in line.number %}
+						{{ line.number|replace({'bis': ''}) }}<span class="text-2xl">bis</span>
+					{% else %}
+						{{ line.number }}
+					{% endif %}
+				</div>
+				<div>
+					<h1 class="text-4xl font-bold text-gray-900 mb-2">Nouvelle discussion</h1>
+					<p class="text-xl text-gray-600">Sur la ligne
+						{{ line.number }}
+						-
+						{{ line.name }}</p>
+				</div>
+			</div>
+		</div>
+
+		{# Formulaire #}
+		<div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+			<div class="p-8">
+				<div x-data="{
+						            submitOnEnter(event) {
+						                if (event.key === 'Enter' && !event.shiftKey) {
+						                    event.preventDefault();
+						                    event.target.form.submit();
+						                }
+						            }
+						        }">
+					{{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+
+					<div>
+						{{ form_row(form.title) }}
+					</div>
+
+					<div>
+						{{ form_label(form.content) }}
+						{{ form_widget(form.content, {
+                        'attr': {
+                            'x-on:keydown': 'submitOnEnter($event)',
+                            'placeholder': 'Écrivez votre message... (Entrée pour envoyer, Shift+Entrée pour un saut de ligne)'
+                        }
+                    }) }}
+						<p class="text-xs text-gray-500 mt-1">
+							💡 Appuyez sur
+							<kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Entrée</kbd>
+							pour créer,
+							<kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Shift + Entrée</kbd>
+							pour un saut de ligne
+						</p>
+					</div>
+
+					<div class="bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500 p-6 rounded-r-xl">
+						<p class="text-blue-900 font-medium">
+							💡
+							<strong>Conseil :</strong>
+							Soyez respectueux et constructif. Les messages inappropriés peuvent entraîner des avertissements.
+						</p>
+					</div>
+
+					<div class="flex items-center justify-between pt-6">
+						<a href="{{ path('app_forum_line', {lineNumber: line.number}) }}" class="text-gray-600 hover:text-gray-900 font-medium text-lg">
+							← Retour
+						</a>
+						<button type="submit" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-4 px-10 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg">
+							Créer la discussion
+						</button>
+					</div>
+
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

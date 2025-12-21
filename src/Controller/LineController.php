@@ -19,7 +19,7 @@ class LineController extends AbstractController
     #[Route('', name: 'app_lines')]
     public function index(LineRepository $lineRepository): Response
     {
-        $lines = $lineRepository->findAll();
+        $lines = $lineRepository->findAllWithStations();
 
         return $this->render('line/index.html.twig', [
             'lines' => $lines,

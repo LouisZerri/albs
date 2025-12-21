@@ -1,174 +1,233 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Conditions d'Utilisation - À la bonne station{% endblock %}
+{% block title %}Conditions d'Utilisation - À la bonne station
+{% endblock %}
 
 {% block body %}
-<div class="max-w-4xl mx-auto py-12 px-4">
-    <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-        <div class="text-center mb-10">
-            <span class="text-6xl mb-4 block">📜</span>
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">Conditions d'Utilisation</h1>
-            <p class="text-gray-600">Dernière mise à jour : {{ 'now'|date('d/m/Y') }}</p>
-        </div>
+	<div class="max-w-4xl mx-auto py-12 px-4">
+		<div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+			<div class="text-center mb-10">
+				<span class="text-6xl mb-4 block">📜</span>
+				<h1 class="text-4xl font-bold text-gray-900 mb-2">Conditions d'Utilisation</h1>
+				<p class="text-gray-600">Dernière mise à jour :
+					{{ 'now'|date('d/m/Y') }}</p>
+			</div>
 
-        <div class="prose prose-lg max-w-none">
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">1. Acceptation des conditions</h2>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    En utilisant <strong>À la bonne station</strong>, vous acceptez les présentes conditions d'utilisation dans leur intégralité. 
-                    Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre service.
-                </p>
-            </section>
+			<div class="prose prose-lg max-w-none">
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">1. Acceptation des conditions</h2>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						En utilisant
+						<strong>À la bonne station</strong>, vous acceptez les présentes conditions d'utilisation dans leur intégralité. 
+							                    Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre service.
+					</p>
+				</section>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">2. Description du service</h2>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    <strong>À la bonne station</strong> est une application ludique permettant aux utilisateurs de suivre leur progression 
-                    dans le réseau du métro parisien et de débloquer des badges en visitant différentes stations.
-                </p>
-            </section>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">2. Description du service</h2>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						<strong>À la bonne station</strong>
+						est une application ludique permettant aux utilisateurs de suivre leur progression 
+						                    dans le réseau du métro parisien et de débloquer des badges en visitant différentes stations.
+					</p>
+				</section>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">3. Esprit de fair-play et respect mutuel</h2>
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg mb-4">
-                    <p class="text-blue-900 leading-relaxed mb-3">
-                        <strong>À la bonne station</strong> repose sur un système de confiance et de bonne foi. 
-                        L'application ne dispose pas de système de géolocalisation obligatoire pour vérifier votre présence physique dans les stations.
-                    </p>
-                    <p class="text-blue-900 leading-relaxed mb-3">
-                        <strong>Nous comptons sur votre honnêteté et votre fair-play</strong> pour ne marquer comme visitées que les stations 
-                        où vous vous êtes réellement rendu(e). Le plaisir du jeu réside dans l'authenticité de votre aventure dans le métro parisien.
-                    </p>
-                    <p class="text-blue-900 leading-relaxed">
-                        En trichant, vous ne trichez que vous-même et réduisez l'intérêt de l'expérience. 
-                        Respectez l'esprit de l'application et celui des autres joueurs qui jouent honnêtement.
-                    </p>
-                </div>
-            </section>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">3. Esprit de fair-play et respect mutuel</h2>
+					<div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg mb-4">
+						<p class="text-blue-900 leading-relaxed mb-3">
+							<strong>À la bonne station</strong>
+							repose sur un système de confiance et de bonne foi. 
+							                        L'application ne dispose pas de système de géolocalisation obligatoire pour vérifier votre présence physique dans les stations.
+						</p>
+						<p class="text-blue-900 leading-relaxed mb-3">
+							<strong>Nous comptons sur votre honnêteté et votre fair-play</strong>
+							pour ne marquer comme visitées que les stations 
+							                        où vous vous êtes réellement rendu(e). Le plaisir du jeu réside dans l'authenticité de votre aventure dans le métro parisien.
+						</p>
+						<p class="text-blue-900 leading-relaxed">
+							En trichant, vous ne trichez que vous-même et réduisez l'intérêt de l'expérience. 
+							                        Respectez l'esprit de l'application et celui des autres joueurs qui jouent honnêtement.
+						</p>
+					</div>
+				</section>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">4. Compte utilisateur</h2>
-                <p class="text-gray-700 leading-relaxed mb-3">
-                    Pour utiliser notre service, vous devez créer un compte avec une adresse email valide.
-                </p>
-                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
-                    <li>Vous êtes responsable de la confidentialité de votre mot de passe</li>
-                    <li>Vous ne devez pas partager votre compte avec d'autres personnes</li>
-                    <li>Vous devez avoir au moins 13 ans pour créer un compte</li>
-                    <li>Vous êtes responsable de toutes les activités effectuées depuis votre compte</li>
-                </ul>
-            </section>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">4. Compte utilisateur</h2>
+					<p class="text-gray-700 leading-relaxed mb-3">
+						Pour utiliser notre service, vous devez créer un compte avec une adresse email valide.
+					</p>
+					<ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+						<li>Vous êtes responsable de la confidentialité de votre mot de passe</li>
+						<li>Vous ne devez pas partager votre compte avec d'autres personnes</li>
+						<li>Vous devez avoir au moins 13 ans pour créer un compte</li>
+						<li>Vous êtes responsable de toutes les activités effectuées depuis votre compte</li>
+					</ul>
+				</section>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">5. Utilisation acceptable</h2>
-                <p class="text-gray-700 leading-relaxed mb-3">Vous vous engagez à :</p>
-                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
-                    <li>Utiliser le service de manière honnête et respectueuse</li>
-                    <li>Ne pas tenter de contourner les systèmes de sécurité</li>
-                    <li>Ne pas utiliser de scripts automatisés ou de bots</li>
-                    <li>Ne pas harceler ou insulter les autres utilisateurs</li>
-                    <li>Respecter la vie privée des autres utilisateurs</li>
-                </ul>
-            </section>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">5. Utilisation acceptable</h2>
+					<p class="text-gray-700 leading-relaxed mb-3">Vous vous engagez à :</p>
+					<ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+						<li>Utiliser le service de manière honnête et respectueuse</li>
+						<li>Ne pas tenter de contourner les systèmes de sécurité</li>
+						<li>Ne pas utiliser de scripts automatisés ou de bots</li>
+						<li>Ne pas harceler ou insulter les autres utilisateurs</li>
+						<li>Respecter la vie privée des autres utilisateurs</li>
+					</ul>
+				</section>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">6. Données personnelles</h2>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    Nous collectons et utilisons vos données personnelles conformément à notre 
-                    <a href="{{ path('app_privacy') }}" class="text-blue-600 hover:text-blue-800 font-medium underline">Politique de Confidentialité</a>.
-                </p>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    Les informations collectées incluent :
-                </p>
-                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
-                    <li>Votre adresse email</li>
-                    <li>Votre pseudo</li>
-                    <li>Votre progression dans les stations</li>
-                    <li>Vos badges débloqués</li>
-                </ul>
-            </section>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">6. Modération et avertissements</h2>
+					<div class="bg-orange-50 border-l-4 border-orange-500 p-6 rounded-r-lg mb-4">
+						<p class="text-orange-900 leading-relaxed mb-3">
+							<strong>⚠️ Système d'avertissements :</strong>
+						</p>
+						<p class="text-orange-900 leading-relaxed mb-3">
+							Pour maintenir un environnement sain et respectueux, nous appliquons un système d'avertissements en trois étapes :
+						</p>
+						<ul class="list-decimal pl-6 text-orange-900 space-y-2">
+							<li>
+								<strong>Premier avertissement</strong>
+								: Notification et rappel des règles</li>
+							<li>
+								<strong>Deuxième avertissement</strong>
+								: Dernier avertissement avant bannissement</li>
+							<li>
+								<strong>Troisième avertissement</strong>
+								: Bannissement automatique et définitif du compte</li>
+						</ul>
+					</div>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">7. Propriété intellectuelle</h2>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    Tous les contenus présents sur <strong>À la bonne station</strong> (textes, graphiques, logos, badges, etc.) 
-                    sont la propriété exclusive de l'application et sont protégés par les lois sur la propriété intellectuelle.
-                </p>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    Les données relatives au réseau RATP (noms de stations, lignes) sont utilisées à des fins informatives 
-                    et restent la propriété de la RATP.
-                </p>
-            </section>
+					<p class="text-gray-700 leading-relaxed mb-3">
+						<strong>Comportements sanctionnés :</strong>
+					</p>
+					<ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+						<li>Messages inappropriés, insultants ou harcelants sur le forum</li>
+						<li>Spam ou publicité non sollicitée</li>
+						<li>Usurpation d'identité</li>
+						<li>Contenu à caractère pornographique, violent ou discriminatoire</li>
+						<li>Tentatives de manipulation ou de fraude</li>
+						<li>Non-respect répété des règles de la communauté</li>
+					</ul>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">8. Limitation de responsabilité</h2>
-                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg mb-4">
-                    <p class="text-yellow-900 leading-relaxed mb-3">
-                        <strong>À la bonne station</strong> est une application ludique et ne remplace pas les applications 
-                        officielles de la RATP pour la planification de vos trajets.
-                    </p>
-                    <p class="text-yellow-900 leading-relaxed">
-                        Nous ne sommes pas responsables des éventuels désagréments liés à vos déplacements dans le métro. 
-                        Veillez toujours à votre sécurité et respectez les règles du réseau RATP.
-                    </p>
-                </div>
-            </section>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						Les avertissements sont visibles sur votre profil. Vous recevrez une notification par email à chaque avertissement. 
+						        Nous vous encourageons à respecter les règles pour éviter toute sanction.
+					</p>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">9. Modifications du service</h2>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    Nous nous réservons le droit de modifier, suspendre ou interrompre tout ou partie du service à tout moment, 
-                    avec ou sans préavis.
-                </p>
-            </section>
+					<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+						<p class="text-blue-900 text-sm">
+							💡
+							<strong>Bon à savoir :</strong>
+							Les avertissements sont donnés par notre équipe de modération après examen du contenu signalé. 
+							            Chaque avertissement est justifié et vous indique clairement la raison de la sanction.
+						</p>
+					</div>
+				</section>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">10. Résiliation</h2>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    Nous nous réservons le droit de suspendre ou de supprimer votre compte si vous violez les présentes conditions 
-                    d'utilisation, notamment en cas de :
-                </p>
-                <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
-                    <li>Utilisation frauduleuse ou abusive du service</li>
-                    <li>Comportement inapproprié envers d'autres utilisateurs</li>
-                    <li>Tentative de manipulation des systèmes de l'application</li>
-                </ul>
-            </section>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">7. Données personnelles</h2>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						Nous collectons et utilisons vos données personnelles conformément à notre
+						<a href="{{ path('app_privacy') }}" class="text-blue-600 hover:text-blue-800 font-medium underline">Politique de Confidentialité</a>.
+					</p>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						Les informations collectées incluent :
+					</p>
+					<ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+						<li>Votre adresse email</li>
+						<li>Votre pseudo</li>
+						<li>Votre progression dans les stations</li>
+						<li>Vos badges débloqués</li>
+					</ul>
+				</section>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">11. Modifications des conditions</h2>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    Nous pouvons modifier ces conditions d'utilisation à tout moment. 
-                    Les modifications entreront en vigueur dès leur publication sur cette page. 
-                    Nous vous encourageons à consulter régulièrement cette page.
-                </p>
-            </section>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">8. Propriété intellectuelle</h2>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						Tous les contenus présents sur
+						<strong>À la bonne station</strong>
+						(textes, graphiques, logos, badges, etc.) 
+						                    sont la propriété exclusive de l'application et sont protégés par les lois sur la propriété intellectuelle.
+					</p>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						Les données relatives au réseau RATP (noms de stations, lignes) sont utilisées à des fins informatives 
+						                    et restent la propriété de la RATP.
+					</p>
+				</section>
 
-            <section class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">12. Contact</h2>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    Pour toute question concernant ces conditions d'utilisation, vous pouvez nous contacter à l'adresse : 
-                    <a href="mailto:contact@alabonnestation.fr" class="text-blue-600 hover:text-blue-800 font-medium underline">
-                        contact@alabonnestation.fr
-                    </a>
-                </p>
-            </section>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">9. Limitation de responsabilité</h2>
+					<div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg mb-4">
+						<p class="text-yellow-900 leading-relaxed mb-3">
+							<strong>À la bonne station</strong>
+							est une application ludique et ne remplace pas les applications 
+							                        officielles de la RATP pour la planification de vos trajets.
+						</p>
+						<p class="text-yellow-900 leading-relaxed">
+							Nous ne sommes pas responsables des éventuels désagréments liés à vos déplacements dans le métro. 
+							                        Veillez toujours à votre sécurité et respectez les règles du réseau RATP.
+						</p>
+					</div>
+				</section>
 
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-10">
-                <p class="text-sm text-gray-600 text-center">
-                    En continuant à utiliser <strong>À la bonne station</strong>, vous acceptez ces conditions d'utilisation.
-                </p>
-            </div>
-        </div>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">10. Modifications du service</h2>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						Nous nous réservons le droit de modifier, suspendre ou interrompre tout ou partie du service à tout moment, 
+						                    avec ou sans préavis.
+					</p>
+				</section>
 
-        <div class="mt-10 text-center">
-            <a href="{{ path('app_home') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Retour à l'accueil
-            </a>
-        </div>
-    </div>
-</div>
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">11. Résiliation</h2>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						Nous nous réservons le droit de suspendre ou de supprimer votre compte si vous violez les présentes conditions 
+						                    d'utilisation, notamment en cas de :
+					</p>
+					<ul class="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+						<li>Utilisation frauduleuse ou abusive du service</li>
+						<li>Comportement inapproprié envers d'autres utilisateurs</li>
+						<li>Tentative de manipulation des systèmes de l'application</li>
+					</ul>
+				</section>
+
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">12. Modifications des conditions</h2>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						Nous pouvons modifier ces conditions d'utilisation à tout moment. 
+						                    Les modifications entreront en vigueur dès leur publication sur cette page. 
+						                    Nous vous encourageons à consulter régulièrement cette page.
+					</p>
+				</section>
+
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold text-gray-900 mb-4">13. Contact</h2>
+					<p class="text-gray-700 leading-relaxed mb-4">
+						Pour toute question concernant ces conditions d'utilisation, vous pouvez nous contacter à l'adresse :
+						<a href="mailto:contact@alabonnestation.fr" class="text-blue-600 hover:text-blue-800 font-medium underline">
+							contact@alabonnestation.fr
+						</a>
+					</p>
+				</section>
+
+				<div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-10">
+					<p class="text-sm text-gray-600 text-center">
+						En continuant à utiliser
+						<strong>À la bonne station</strong>, vous acceptez ces conditions d'utilisation.
+					</p>
+				</div>
+			</div>
+
+			<div class="mt-10 text-center">
+				<a href="{{ path('app_home') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+					<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+					</svg>
+					Retour à l'accueil
+				</a>
+			</div>
+		</div>
+	</div>
 {% endblock %}

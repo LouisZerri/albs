@@ -1,0 +1,151 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modération - À la bonne station
+{% endblock %}
+
+{% block body %}
+	<div class="max-w-7xl mx-auto px-4 py-8">
+		<div class="mb-10">
+			<h1 class="text-5xl font-bold text-gray-900 mb-3">🛡️ Modération</h1>
+			<p class="text-xl text-gray-600">Gérer la communauté et les contenus</p>
+		</div>
+
+		{# Statistiques #}
+		<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+			<div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200 hover:shadow-xl transition-all duration-300">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-orange-600 text-sm font-medium mb-2">Messages signalés</p>
+						<p class="text-4xl font-black text-orange-700">0</p>
+					</div>
+					<div class="text-6xl">⚠️</div>
+				</div>
+			</div>
+
+			<div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200 hover:shadow-xl transition-all duration-300">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-red-600 text-sm font-medium mb-2">Utilisateurs avertis</p>
+						<p class="text-4xl font-black text-red-700">{{ warnedUsersCount ?? 0 }}</p>
+					</div>
+					<div class="text-6xl">👥</div>
+				</div>
+			</div>
+
+			<div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 hover:shadow-xl transition-all duration-300">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-gray-600 text-sm font-medium mb-2">Utilisateurs bannis</p>
+						<p class="text-4xl font-black text-gray-700">{{ bannedUsersCount ?? 0 }}</p>
+					</div>
+					<div class="text-6xl">🚫</div>
+				</div>
+			</div>
+
+			<div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 hover:shadow-xl transition-all duration-300">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-blue-600 text-sm font-medium mb-2">Messages aujourd'hui</p>
+						<p class="text-4xl font-black text-blue-700">{{ todayMessagesCount ?? 0 }}</p>
+					</div>
+					<div class="text-6xl">💬</div>
+				</div>
+			</div>
+		</div>
+
+		{# Messages récents du forum #}
+		<div class="bg-white rounded-xl shadow-lg overflow-hidden">
+			<div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+				<h2 class="text-3xl font-bold text-gray-900">💬 Messages récents du forum</h2>
+				<p class="text-gray-600 mt-1">Surveiller les dernières activités</p>
+			</div>
+
+			{% if pagination.items|length > 0 %}
+				<div class="divide-y divide-gray-200">
+					{% for message in pagination %}
+						<div class="p-6 hover:bg-gray-50 transition-colors">
+							<div class="flex items-start justify-between">
+								<div class="flex-grow">
+									<div class="flex items-center gap-3 mb-2">
+										<div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+											{% if message.author.avatarUrl %}
+												<img src="{{ asset('uploads/avatars/' ~ message.author.avatarUrl) }}" alt="{{ message.author.username }}" class="w-full h-full object-cover">
+											{% else %}
+												<span class="text-white font-bold">{{ message.author.username|first|upper }}</span>
+											{% endif %}
+										</div>
+										<div>
+											<a href="{{ path('app_profile_public', {username: message.author.username}) }}" class="font-bold text-gray-900 hover:text-blue-600 hover:underline">
+												{{ message.author.username }}
+											</a>
+											{% if message.author.warningCount > 0 %}
+												<span class="ml-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+													⚠️
+													{{ message.author.warningCount }}
+													avertissement{{ message.author.warningCount > 1 ? 's' : '' }}
+												</span>
+											{% endif %}
+											<span class="ml-2 text-sm text-gray-500">{{ message.createdAt|date('d/m/Y à H:i') }}</span>
+										</div>
+									</div>
+									<p class="text-gray-700 ml-13">{{ message.content|slice(0, 200) }}{{ message.content|length > 200 ? '...' : '' }}</p>
+								</div>
+
+								{# Boutons de modération - UNIQUEMENT si ce n'est pas son propre message #}
+								{% if app.user.id != message.author.id %}
+									<div class="flex gap-2 ml-4">
+										{% if message.author.isBanned %}
+											<span class="px-3 py-1 bg-gray-200 text-gray-600 text-xs rounded font-semibold">
+												🚫 Banni
+											</span>
+											<form method="post" action="{{ path('app_reply_delete', {id: message.id}) }}" onsubmit="return confirm('Supprimer ce message ?')" class="inline">
+												<input type="hidden" name="_token" value="{{ csrf_token('delete_reply' ~ message.id) }}">
+												<button type="submit" class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors cursor-pointer">
+													🗑️ Supprimer
+												</button>
+											</form>
+										{% else %}
+											{# Afficher "Avertir" uniquement si CE message n'a pas encore été averti #}
+											{% if message.id not in warnedPostIds %}
+												<button onclick="warnUser({{ message.author.id }}, {{ message.id }}, '{{ message.author.username|e('js') }}')" class="px-3 py-1 bg-orange-500 text-white rounded text-sm hover:bg-orange-600 transition-colors cursor-pointer">
+													⚠️ Avertir
+												</button>
+											{% else %}
+												<span class="px-3 py-1 bg-orange-100 text-orange-800 text-xs rounded font-semibold">
+													⚠️ Averti
+												</span>
+											{% endif %}
+											<form method="post" action="{{ path('app_reply_delete', {id: message.id}) }}" onsubmit="return confirm('Supprimer ce message ?')" class="inline">
+												<input type="hidden" name="_token" value="{{ csrf_token('delete_reply' ~ message.id) }}">
+												<button type="submit" class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors cursor-pointer">
+													🗑️ Supprimer
+												</button>
+											</form>
+										{% endif %}
+									</div>
+								{% endif %}
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+
+				{# Pagination #}
+				{% if pagination.pageCount > 1 %}
+					<div class="px-8 py-6 bg-gray-50 border-t border-gray-200">
+						<div class="flex items-center justify-center">
+							{{ knp_pagination_render(pagination, 'pagination/tailwind_pagination.html.twig') }}
+						</div>
+					</div>
+				{% endif %}
+			{% else %}
+				<div class="p-12 text-center">
+					<span class="text-6xl">✅</span>
+					<h3 class="text-2xl font-bold text-gray-900 mt-4">Tout est calme !</h3>
+					<p class="text-lg text-gray-600 mt-2">Aucun message récent à modérer</p>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+
+	{% include 'components/_modal.html.twig' %}
+{% endblock %}
