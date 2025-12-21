@@ -28,6 +28,20 @@ class UserStationRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findMostVisitedStations(int $limit = 10): array
+    {
+        return $this->createQueryBuilder('us')
+            ->select('s.id, s.name, l.number as lineNumber, l.color as lineColor, COUNT(us.id) as visitCount')
+            ->join('us.station', 's')
+            ->join('s.line', 'l')
+            ->where('us.stopped = true')
+            ->groupBy('s.id, s.name, l.number, l.color')
+            ->orderBy('visitCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return UserStation[] Returns an array of UserStation objects
     //     */

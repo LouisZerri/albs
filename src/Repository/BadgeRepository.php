@@ -16,6 +16,18 @@ class BadgeRepository extends ServiceEntityRepository
         parent::__construct($registry, Badge::class);
     }
 
+    public function findMostUnlockedBadges(int $limit = 10): array
+    {
+        return $this->createQueryBuilder('b')
+            ->select('b.id, b.name, b.icon, COUNT(u.id) as unlockCount')
+            ->leftJoin('b.users', 'u')
+            ->groupBy('b.id, b.name, b.icon')
+            ->orderBy('unlockCount', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Badge[] Returns an array of Badge objects
 //     */

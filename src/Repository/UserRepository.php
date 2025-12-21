@@ -33,6 +33,48 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    public function countNewUsersSince(\DateTimeImmutable $since): int
+    {
+        return $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.createdAt >= :since')
+            ->setParameter('since', $since)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countActiveUsers(): int
+    {
+        return $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.accountStatus = :status')
+            ->setParameter('status', 'active')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findModerators(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.roles LIKE :role')
+            ->setParameter('role', '%ROLE_MODERATOR%')
+            ->orderBy('u.username', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function searchByUsernameOrEmail(string $query, int $limit = 10): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.username LIKE :query')
+            ->orWhere('u.email LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('u.username', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

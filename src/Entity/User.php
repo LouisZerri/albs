@@ -310,6 +310,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function unban(): static
+    {
+        $this->accountStatus = 'active';
+        $this->bannedAt = null;
+        $this->warningCount = 0;
+        return $this;
+    }
+
     public function markAsDeleted(): static
     {
         $this->accountStatus = 'deleted';
@@ -319,6 +327,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getBannedAt(): ?\DateTimeImmutable
     {
         return $this->bannedAt;
+    }
+
+    public function setBannedAt(?\DateTimeImmutable $bannedAt): static
+    {
+        $this->bannedAt = $bannedAt;
+        return $this;
     }
 
     // ========== MÉTHODES : AVERTISSEMENTS ==========

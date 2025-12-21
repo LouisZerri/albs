@@ -24,7 +24,7 @@
 					{% endif %}
 
 					{% if is_granted('ROLE_ADMIN') %}
-						<a href="#" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
+						<a href="{{ path('app_admin') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition">
 							⚙️ Administration
 						</a>
 					{% endif %}

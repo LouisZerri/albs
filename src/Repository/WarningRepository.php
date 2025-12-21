@@ -33,6 +33,18 @@ class WarningRepository extends ServiceEntityRepository
         );
     }
 
+    public function findLatestWithRelations(int $limit = 20): array
+    {
+        return $this->createQueryBuilder('w')
+            ->select('w', 'u', 'm')
+            ->leftJoin('w.user', 'u')
+            ->leftJoin('w.moderator', 'm')
+            ->orderBy('w.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Warning[] Returns an array of Warning objects
     //     */
