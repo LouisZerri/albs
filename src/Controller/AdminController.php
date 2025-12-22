@@ -9,6 +9,7 @@ use App\Repository\LineDiscussionRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserStationRepository;
 use App\Repository\WarningRepository;
+use App\Service\ModerationEmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -102,7 +103,8 @@ class AdminController extends AbstractController
     public function unbanUser(
         User $user,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        ModerationEmailService $moderationEmailService,
     ): Response {
         if (!$this->isCsrfTokenValid('unban_' . $user->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', 'Token CSRF invalide.');
@@ -118,6 +120,13 @@ class AdminController extends AbstractController
         $user->unban();
 
         $entityManager->flush();
+
+        // Envoyer l'email de débannissement
+        try {
+            $moderationEmailService->sendUnbanEmail($user);
+        } catch (\Exception $e) {
+            error_log('Erreur envoi email débannissement : ' . $e->getMessage());
+        }
 
         $this->addFlash('success', "✅ {$user->getUsername()} a été débanni.");
 

@@ -62,40 +62,40 @@
 
 				{# Formulaire d'édition avec Alpine.js #}
 				<div x-data="{
-						                password: '',
-						                passwordConfirm: '',
-						                hasMinLength: false,
-						                hasUppercase: false,
-						                hasLowercase: false,
-						                hasNumber: false,
-						                hasSpecial: false,
-						                passwordMatch: true,
-						                isPasswordValid: true,
-						                checkPassword() {
-						                    if (this.password === '') {
-						                        this.hasMinLength = false;
-						                        this.hasUppercase = false;
-						                        this.hasLowercase = false;
-						                        this.hasNumber = false;
-						                        this.hasSpecial = false;
-						                        this.isPasswordValid = true;
-						                        return;
-						                    }
-						                    this.hasMinLength = this.password.length >= 6;
-						                    this.hasUppercase = /[A-Z]/.test(this.password);
-						                    this.hasLowercase = /[a-z]/.test(this.password);
-						                    this.hasNumber = /[0-9]/.test(this.password);
-						                    this.hasSpecial = /[@$!%*?&_\-#]/.test(this.password);
-						                    this.isPasswordValid = this.hasMinLength && this.hasUppercase && this.hasLowercase && this.hasNumber && this.hasSpecial;
-						                },
-						                checkPasswordMatch() {
-						                    if (this.passwordConfirm === '') {
-						                        this.passwordMatch = true;
-						                        return;
-						                    }
-						                    this.passwordMatch = this.password === this.passwordConfirm;
-						                }
-						            }">
+					password: '',
+					passwordConfirm: '',
+					hasMinLength: false,
+					hasUppercase: false,
+					hasLowercase: false,
+					hasNumber: false,
+					hasSpecial: false,
+					passwordMatch: true,
+					isPasswordValid: true,
+					checkPassword() {
+						if (this.password === '') {
+							this.hasMinLength = false;
+							this.hasUppercase = false;
+							this.hasLowercase = false;
+							this.hasNumber = false;
+							this.hasSpecial = false;
+							this.isPasswordValid = true;
+							return;
+						}
+						this.hasMinLength = this.password.length >= 6;
+						this.hasUppercase = /[A-Z]/.test(this.password);
+						this.hasLowercase = /[a-z]/.test(this.password);
+						this.hasNumber = /[0-9]/.test(this.password);
+						this.hasSpecial = /[@$!%*?&_\-#]/.test(this.password);
+						this.isPasswordValid = this.hasMinLength && this.hasUppercase && this.hasLowercase && this.hasNumber && this.hasSpecial;
+					},
+					checkPasswordMatch() {
+						if (this.passwordConfirm === '') {
+							this.passwordMatch = true;
+							return;
+						}
+						this.passwordMatch = this.password === this.passwordConfirm;
+					}
+				}">
 					{{ form_start(form, {'attr': {'class': 'space-y-6', 'enctype': 'multipart/form-data'}}) }}
 
 					{# Pseudo #}
@@ -203,15 +203,15 @@
 								<div class="mt-3">
 									<div class="h-2 bg-gray-200 rounded-full overflow-hidden">
 										<div class="h-full transition-all duration-300" :class="{
-											                                            'bg-red-500': password.length > 0 && !isPasswordValid,
-											                                            'bg-green-500': isPasswordValid,
-											                                            'w-0': password.length === 0,
-											                                            'w-1/5': hasMinLength && password.length > 0,
-											                                            'w-2/5': hasMinLength && (hasUppercase || hasLowercase || hasNumber || hasSpecial),
-											                                            'w-3/5': hasMinLength && ((hasUppercase && hasLowercase) || (hasNumber && hasSpecial)),
-											                                            'w-4/5': (hasMinLength + hasUppercase + hasLowercase + hasNumber + hasSpecial) >= 4,
-											                                            'w-full': isPasswordValid
-											                                        }"></div>
+											'bg-red-500': password.length > 0 && !isPasswordValid,
+											'bg-green-500': isPasswordValid,
+											'w-0': password.length === 0,
+											'w-1/5': hasMinLength && password.length > 0,
+											'w-2/5': hasMinLength && (hasUppercase || hasLowercase || hasNumber || hasSpecial),
+											'w-3/5': hasMinLength && ((hasUppercase && hasLowercase) || (hasNumber && hasSpecial)),
+											'w-4/5': (hasMinLength + hasUppercase + hasLowercase + hasNumber + hasSpecial) >= 4,
+											'w-full': isPasswordValid
+										}"></div>
 									</div>
 									<p x-show="isPasswordValid" class="text-xs text-green-600 font-semibold mt-1 text-center">
 										✓ Mot de passe fort !

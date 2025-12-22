@@ -57,7 +57,7 @@ class ModerationController extends AbstractController
         // Statistiques avec cache de 5 minutes
         $stats = $cache->get('moderation_stats', function (ItemInterface $item) use ($userRepository, $replyRepository) {
             $item->expiresAfter(300); // 5 minutes
-            
+
             return [
                 'warnedUsersCount' => $userRepository->count(['warningCount' => 1]),
                 'bannedUsersCount' => $userRepository->count(['accountStatus' => 'banned']),
@@ -91,6 +91,7 @@ class ModerationController extends AbstractController
 
         $userId = $request->request->get('user_id');
         $postId = $request->request->get('post_id');
+        $discussionId = $request->request->get('discussion_id'); // ← Ajout
         $reason = $request->request->get('reason');
 
         $user = $userRepository->find($userId);
@@ -99,11 +100,10 @@ class ModerationController extends AbstractController
             return $this->redirectToRoute('app_moderation');
         }
 
-        // Vérifications de permissions
+    // Vérifications de permissions
         /** @var User $currentUser */
         $currentUser = $this->getUser();
         assert($currentUser instanceof User);
-
 
         // Personne ne peut avertir un admin
         if ($user->isAdmin()) {
@@ -122,8 +122,15 @@ class ModerationController extends AbstractController
         $warning->setUser($user);
         $warning->setModerator($currentUser);
         $warning->setReason($reason);
-        $warning->setRelatedPostId($postId);
-        $warning->setRelatedPostType('discussion_reply');
+
+        // Différencier reply vs discussion ← Modifié
+        if ($postId) {
+            $warning->setRelatedPostId($postId);
+            $warning->setRelatedPostType('discussion_reply');
+        } elseif ($discussionId) {
+            $warning->setRelatedPostId($discussionId);
+            $warning->setRelatedPostType('discussion');
+        }
 
         // Incrémenter le compteur d'avertissements
         $user->incrementWarningCount();
@@ -159,6 +166,17 @@ class ModerationController extends AbstractController
 
         $entityManager->flush();
 
+        // Rediriger vers la discussion si on vient de là ← Ajout
+        if ($discussionId) {
+            return $this->redirectToRoute('app_discussion_show', ['id' => $discussionId]);
+        }
+
+        // Sinon retourner à la page précédente ou à la modération
+        $referer = $request->headers->get('referer');
+        if ($referer) {
+            return $this->redirect($referer);
+        }
+
         return $this->redirectToRoute('app_moderation');
     }
 
@@ -167,6 +185,7 @@ class ModerationController extends AbstractController
         Warning $warning,
         Request $request,
         EntityManagerInterface $entityManager,
+        ModerationEmailService $moderationEmailService,
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_MODERATOR');
 
@@ -199,6 +218,13 @@ class ModerationController extends AbstractController
         // Supprimer l'avertissement
         $entityManager->remove($warning);
         $entityManager->flush();
+
+        // Envoyer l'email de notification
+        try {
+            $moderationEmailService->sendWarningRemovedEmail($user, $user->getWarningCount());
+        } catch (\Exception $e) {
+            error_log('Erreur envoi email retrait avertissement : ' . $e->getMessage());
+        }
 
         $this->addFlash('success', "✅ Avertissement retiré pour {$user->getUsername()} ({$user->getWarningCount()}/3).");
 

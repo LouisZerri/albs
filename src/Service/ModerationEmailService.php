@@ -38,6 +38,24 @@ class ModerationEmailService
     }
 
     /**
+     * Envoie un email de retrait d'avertissement à l'utilisateur
+     */
+    public function sendWarningRemovedEmail(User $user, int $remainingWarnings): void
+    {
+        $email = (new TemplatedEmail())
+            ->from(new Address($this->fromEmail, $this->fromName))
+            ->to($user->getEmail())
+            ->subject('✅ Avertissement retiré - À la bonne station')
+            ->htmlTemplate('emails/moderation/warning_removed.html.twig')
+            ->context([
+                'user' => $user,
+                'remainingWarnings' => $remainingWarnings,
+            ]);
+
+        $this->mailer->send($email);
+    }
+
+    /**
      * Envoie un email de bannissement à l'utilisateur
      */
     public function sendBanEmail(User $user): void
@@ -47,6 +65,23 @@ class ModerationEmailService
             ->to($user->getEmail())
             ->subject('🚫 Votre compte a été banni - À la bonne station')
             ->htmlTemplate('emails/moderation/ban.html.twig')
+            ->context([
+                'user' => $user,
+            ]);
+
+        $this->mailer->send($email);
+    }
+
+    /**
+     * Envoie un email de débannissement à l'utilisateur
+     */
+    public function sendUnbanEmail(User $user): void
+    {
+        $email = (new TemplatedEmail())
+            ->from(new Address($this->fromEmail, $this->fromName))
+            ->to($user->getEmail())
+            ->subject('🎉 Votre compte a été rétabli - À la bonne station')
+            ->htmlTemplate('emails/moderation/unban.html.twig')
             ->context([
                 'user' => $user,
             ]);
