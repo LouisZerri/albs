@@ -2,22 +2,22 @@
 
 > Application de suivi et gamification du métro parisien
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Symfony](https://img.shields.io/badge/Symfony-7.2-000000?logo=symfony)
+![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
+![Symfony](https://img.shields.io/badge/Symfony-7.3-000000?logo=symfony)
 ![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 
 ## 🎯 À propos
 
-**À la bonne station** est une application web (et bientôt mobile) permettant aux utilisateurs de suivre leur progression dans les 16 lignes du métro parisien. Transformez vos déplacements quotidiens en aventure ludique grâce à un système de badges et de statistiques !
+**À la bonne station** est une application web permettant aux utilisateurs de suivre leur progression dans les 16 lignes du métro parisien. Transformez vos déplacements quotidiens en aventure ludique grâce à un système de badges, de statistiques et une communauté active !
 
 ### 🌟 Concept
 
 - **Explorez** : Marquez les stations que vous visitez
 - **Progressez** : Suivez votre avancement ligne par ligne
 - **Débloquez** : Obtenez des badges en accomplissant des défis
-- **Partagez** : Échangez avec la communauté (à venir)
+- **Partagez** : Échangez avec la communauté sur le forum
 
 ---
 
@@ -32,9 +32,10 @@
 ### 🚇 Suivi des lignes
 - ✅ 16 lignes du métro parisien
 - ✅ 309 stations au total
-- ✅ Marquage "Passé" / "Visité"
+- ✅ Marquage "Passé" / "Visité" en un clic
+- ✅ Interface mobile-first avec cercles interactifs
 - ✅ Gestion des branches (Lignes 7 et 13)
-- ✅ Statistiques par ligne
+- ✅ Statistiques par ligne avec barres de progression animées
 - ✅ Calcul de progression en temps réel
 
 ### 🏆 Système de badges (16 badges)
@@ -63,48 +64,75 @@
 
 #### Système avancé
 - ✅ Calcul automatique de progression (0-100%)
-- ✅ Notifications en temps réel des nouveaux badges
+- ✅ Notifications toast des nouveaux badges
 - ✅ Sélection de 3 badges à afficher sur le profil
 - ✅ Suivi temporel (date de première visite/passage)
 
+### 💬 Forum communautaire
+- ✅ Discussions par ligne de métro
+- ✅ Forum général (tous sujets)
+- ✅ Création de discussions avec images (max 3)
+- ✅ Réponses avec upload d'images
+- ✅ Compteur de vues et réponses
+- ✅ Pagination des discussions
+- ✅ Recherche de discussions
+- ✅ Profils publics des membres
+
+### 🛡️ Modération
+- ✅ Rôles : Utilisateur, Modérateur, Admin
+- ✅ Système d'avertissements
+- ✅ Bannissement d'utilisateurs
+- ✅ Épingler/Désépingler des discussions
+- ✅ Verrouiller/Déverrouiller des discussions
+- ✅ Suppression de messages et discussions
+- ✅ Règles du forum
+
 ### 👤 Profil utilisateur
-- ✅ Statistiques personnelles
+- ✅ Statistiques personnelles complètes
 - ✅ Upload de photo de profil
 - ✅ Édition des informations
 - ✅ Badges affichés (max 3)
 - ✅ Progression par ligne
+- ✅ Profil public visitable
 - ✅ Suppression de compte
 
 ### 📊 Statistiques
-- ✅ Nombre de stations passées
-- ✅ Nombre de stations visitées
+- ✅ Nombre de stations passées / visitées
 - ✅ Progression par ligne (%)
+- ✅ Barres de progression animées avec emoji 🚇
 - ✅ Badges débloqués
 - ✅ Historique de progression
+
+### ⚡ Performance
+- ✅ Système de cache (Redis-compatible)
+- ✅ Optimisation des requêtes N+1
+- ✅ Prefetch Turbo pour navigation instantanée
+- ✅ Anti-spam sur les clics rapides
 
 ---
 
 ## 🛠️ Stack technique
 
-### Backend (Web)
+### Backend
 - **Framework** : Symfony 7.3
 - **PHP** : 8.3
 - **Base de données** : MySQL 8.0
 - **ORM** : Doctrine
 - **Template Engine** : Twig
 - **Authentification** : Symfony Security
+- **Cache** : Symfony Cache
+- **Pagination** : KnpPaginatorBundle
 
-### Frontend (Web)
+### Frontend
 - **CSS Framework** : TailwindCSS 4
 - **JavaScript** : Stimulus.js (Hotwired)
+- **Interactivité** : Alpine.js
 - **Build tool** : Webpack Encore
-- **Icons** : Emoji natifs
 
 ### Infrastructure
 - **Containerisation** : Docker + Docker Compose
 - **Serveur web** : Apache 2.4
 - **PHP-FPM** : 8.3
-- **Volumes persistants** : MySQL data
 
 ---
 
@@ -119,41 +147,35 @@
 ## 🚀 Installation
 
 ### 1. Cloner le repository
-
 ```bash
-git clone https://github.com/votre-username/albs.git
+git clone https://github.com/LouisZerri/albs.git
 cd albs
 ```
 
 ### 2. Lancer Docker
-
 ```bash
 docker compose up -d --build
 ```
 
 ### 3. Installer les dépendances
-
 ```bash
 docker compose exec php composer install
 docker compose exec php npm install
 ```
 
 ### 4. Configurer l'environnement
-
 ```bash
 docker compose exec php cp .env .env.local
 # Éditer .env.local avec vos configurations
 ```
 
 ### 5. Créer la base de données
-
 ```bash
 docker compose exec php php bin/console doctrine:database:create
 docker compose exec php php bin/console doctrine:migrations:migrate
 ```
 
 ### 6. Charger les données initiales
-
 ```bash
 # Lignes et stations du métro
 docker compose exec php php bin/console doctrine:fixtures:load --append
@@ -163,7 +185,6 @@ docker compose exec php php bin/console doctrine:fixtures:load --group=BadgeFixt
 ```
 
 ### 7. Compiler les assets
-
 ```bash
 docker compose exec php npm run build
 # Ou en mode watch pour le développement
@@ -185,7 +206,6 @@ docker compose exec php npm run watch
 ### Variables d'environnement
 
 Créez un fichier `.env.local` :
-
 ```env
 # Base de données
 DATABASE_URL="mysql://root:root@database:3306/albs?serverVersion=8.0"
@@ -202,7 +222,6 @@ MAILER_DSN=smtp://mailhog:1025
 ```
 
 ### Structure Docker
-
 ```yaml
 services:
   php:
@@ -220,7 +239,7 @@ services:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: bonne_station
+      MYSQL_DATABASE: albs
     volumes:
       - db_data:/var/lib/mysql
     networks:
@@ -232,7 +251,6 @@ services:
 ## 💻 Utilisation
 
 ### Commandes principales
-
 ```bash
 # Démarrer l'application
 docker compose up -d
@@ -264,161 +282,9 @@ docker compose exec php php bin/console app:update-user-station-dates
 
 ---
 
-## 🏗️ Architecture
-
-### Structure du projet
-
-```
-.
-├── assets/                      # Frontend assets
-│   ├── controllers/             # Stimulus controllers
-│   ├── styles/                  # CSS/TailwindCSS
-│   └── app.js                   # Entry point JS
-├── config/                      # Configuration Symfony
-├── docker/                      # Configuration Docker
-│   ├── apache/
-│   │   └── vhost.conf
-│   ├── mysql/
-│   │   └── init.sql
-│   └── php/
-│       └── Dockerfile
-├── public/                      # Point d'entrée web
-│   ├── uploads/                 # Fichiers uploadés
-│   │   └── avatars/
-│   └── index.php
-├── src/
-│   ├── Command/                 # Commandes Symfony
-│   ├── Controller/              # Contrôleurs
-│   │   ├── Api/                 # API pour mobile
-│   │   ├── BadgeController.php
-│   │   ├── LineController.php
-│   │   ├── ProfileController.php
-│   │   ├── RegistrationController.php
-│   │   └── SecurityController.php
-│   ├── DataFixtures/            # Fixtures
-│   │   ├── BadgeFixtures.php
-│   │   ├── LineFixtures.php
-│   │   └── StationFixtures.php
-│   ├── Entity/                  # Entités Doctrine
-│   │   ├── Badge.php
-│   │   ├── Line.php
-│   │   ├── Station.php
-│   │   ├── User.php
-│   │   └── UserStation.php
-│   ├── Form/                    # Formulaires
-│   │   ├── LoginFormType.php
-│   │   ├── ProfileEditFormType.php
-│   │   └── RegistrationFormType.php
-│   ├── Repository/              # Repositories Doctrine
-│   │   ├── BadgeRepository.php
-│   │   ├── LineRepository.php
-│   │   ├── StationRepository.php
-│   │   ├── UserRepository.php
-│   │   └── UserStationRepository.php
-│   ├── Service/                 # Services métier
-│   │   └── BadgeService.php
-│   └── Kernel.php
-├── templates/                   # Templates Twig
-│   ├── base.html.twig
-│   ├── home/
-│   ├── line/
-│   ├── profile/
-│   ├── registration/
-│   └── security/
-├── translations/                # Traductions
-│   └── security.fr.yaml
-├── docker-compose.yml
-└── README.md
-```
-
-### Modèle de données
-
-```
-User
-├── id
-├── email (unique)
-├── password (hashed)
-├── username
-├── avatar
-├── roles (JSON)
-├── createdAt
-├── displayedBadges (JSON, max 3)
-├── favoriteLine → Line
-├── userStations → [UserStation]
-└── badges → [Badge]
-
-Line
-├── id
-├── number
-├── name
-├── color (hex)
-├── textColor (hex)
-└── stations → [Station]
-
-Station
-├── id
-├── name
-├── position
-├── branch (nullable)
-├── line → Line
-└── userStations → [UserStation]
-
-UserStation
-├── id
-├── passed (boolean)
-├── stopped (boolean)
-├── firstPassedAt (datetime)
-├── firstStoppedAt (datetime)
-├── updatedAt (datetime)
-├── user → User
-└── station → Station
-
-Badge
-├── id
-├── name
-├── description
-├── icon (emoji)
-├── type
-├── criteria (JSON)
-└── users → [User]
-```
-
----
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! 
-
-### Comment contribuer
-
-1. **Fork** le projet
-2. **Créez** votre branche (`git checkout -b feature/AmazingFeature`)
-3. **Committez** vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** vers la branche (`git push origin feature/AmazingFeature`)
-5. **Ouvrez** une Pull Request
-
-### Guidelines
-
-- Suivre les conventions de code PSR-12
-- Ajouter des tests pour les nouvelles fonctionnalités
-- Mettre à jour la documentation si nécessaire
-- Utiliser des commits clairs et descriptifs
-
-### Rapporter un bug
-
-Ouvrez une issue avec :
-- Description claire du bug
-- Steps to reproduce
-- Comportement attendu vs actuel
-- Screenshots si applicable
-- Version de l'application
-
----
-
 ## 📄 License
 
 Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
 ```
 MIT License
 
@@ -438,6 +304,8 @@ copies or substantial portions of the Software.
 ---
 
 <div align="center">
+
+**Fait avec ❤️ pour les amoureux du métro parisien**
 
 [![GitHub Stars](https://img.shields.io/github/stars/votre-username/a-la-bonne-station?style=social)](https://github.com/votre-username/a-la-bonne-station)
 [![GitHub Forks](https://img.shields.io/github/forks/votre-username/a-la-bonne-station?style=social)](https://github.com/votre-username/a-la-bonne-station)

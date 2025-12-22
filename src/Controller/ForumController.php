@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/forum')]
 class ForumController extends AbstractController
 {
+    
     #[Route('', name: 'app_forum')]
     public function index(
         Request $request,
@@ -37,11 +38,15 @@ class ForumController extends AbstractController
         $totalDiscussions = $discussionRepository->count([]);
         $recentDiscussions = $discussionRepository->findRecentWithRelations(10);
 
+        // Nombre de discussions générales
+        $generalDiscussionsCount = $discussionRepository->count(['line' => null]);
+
         return $this->render('forum/index.html.twig', [
             'lines' => $lines,
             'totalDiscussions' => $totalDiscussions,
             'recentDiscussions' => $recentDiscussions,
             'searchQuery' => '',
+            'generalDiscussionsCount' => $generalDiscussionsCount,
         ]);
     }
 
@@ -62,6 +67,17 @@ class ForumController extends AbstractController
 
         return $this->render('forum/line.html.twig', [
             'line' => $line,
+            'discussions' => $discussions,
+        ]);
+    }
+
+    #[Route('/general', name: 'app_forum_general')]
+    public function generalDiscussions(
+        LineDiscussionRepository $discussionRepository
+    ): Response {
+        $discussions = $discussionRepository->findGeneralOrdered();
+
+        return $this->render('forum/general.html.twig', [
             'discussions' => $discussions,
         ]);
     }

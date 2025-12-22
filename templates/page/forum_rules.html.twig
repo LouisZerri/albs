@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Règles du forum - À la bonne station{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+        <div class="flex items-center gap-4 mb-8">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-3xl">
+                📜
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Règles du forum</h1>
+                <p class="text-gray-600">Merci de respecter ces règles pour une communauté agréable</p>
+            </div>
+        </div>
+
+        <div class="space-y-8">
+            {# Règles générales #}
+            <section>
+                <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span class="text-2xl">📝</span> Règles générales
+                </h2>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                        <span class="text-green-500 mt-0.5">✓</span>
+                        <span>Écrivez en <strong>français correct</strong>, pas de langage SMS</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                        <span class="text-green-500 mt-0.5">✓</span>
+                        <span>Évitez les messages inutiles (« Salut ça va ? », « il est quelle heure ? »...)</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                        <span class="text-green-500 mt-0.5">✓</span>
+                        <span>Pas de flood (messages répétitifs)</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                        <span class="text-green-500 mt-0.5">✓</span>
+                        <span>Pas de publicité ni de promotion de chaînes personnelles</span>
+                    </li>
+                </ul>
+            </section>
+
+            {# Contenu interdit #}
+            <section>
+                <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span class="text-2xl">🚫</span> Contenu interdit
+                </h2>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3 p-3 bg-red-50 rounded-xl">
+                        <span class="text-red-500 mt-0.5">✕</span>
+                        <span>Propos, images ou liens pornographiques ou contenant de la nudité</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-red-50 rounded-xl">
+                        <span class="text-red-500 mt-0.5">✕</span>
+                        <span>Liens vers des sites de streaming ou téléchargement illégal</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-red-50 rounded-xl">
+                        <span class="text-red-500 mt-0.5">✕</span>
+                        <span>Débats politiques, religieux ou tout sujet litigieux</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-red-50 rounded-xl">
+                        <span class="text-red-500 mt-0.5">✕</span>
+                        <span>Noms d'utilisateurs offensants ou blessants</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-red-50 rounded-xl">
+                        <span class="text-red-500 mt-0.5">✕</span>
+                        <span>Doubles-comptes (sauf accord préalable avec la modération)</span>
+                    </li>
+                </ul>
+            </section>
+
+            {# Respect entre membres #}
+            <section>
+                <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span class="text-2xl">🤝</span> Respect entre membres
+                </h2>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3 p-3 bg-orange-50 rounded-xl">
+                        <span class="text-orange-500 mt-0.5">⚠️</span>
+                        <span>Pas d'agression envers un autre membre (avec ou sans insulte)</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-orange-50 rounded-xl">
+                        <span class="text-orange-500 mt-0.5">⚠️</span>
+                        <span>Pas de réaction disproportionnée face aux propos des autres</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-orange-50 rounded-xl">
+                        <span class="text-orange-500 mt-0.5">⚠️</span>
+                        <span>Pas de propos négatifs à répétition sur un sujet</span>
+                    </li>
+                    <li class="flex items-start gap-3 p-3 bg-orange-50 rounded-xl">
+                        <span class="text-orange-500 mt-0.5">⚠️</span>
+                        <span>Pas de contradiction systématique pour le plaisir de contredire</span>
+                    </li>
+                </ul>
+            </section>
+
+            {# Sanctions #}
+            <section>
+                <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span class="text-2xl">⚖️</span> Sanctions
+                </h2>
+                <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6">
+                    <p class="text-gray-700 mb-4">
+                        Le non-respect de ces règles peut entraîner :
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full font-medium">
+                            ⚠️ Avertissement
+                        </span>
+                        <span class="px-4 py-2 bg-orange-100 text-orange-800 rounded-full font-medium">
+                            🔒 Verrouillage du sujet
+                        </span>
+                        <span class="px-4 py-2 bg-red-100 text-red-800 rounded-full font-medium">
+                            🗑️ Suppression du message
+                        </span>
+                        <span class="px-4 py-2 bg-red-200 text-red-900 rounded-full font-medium">
+                            🚫 Bannissement
+                        </span>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-4">
+                        La modération se réserve le droit d'appliquer ces sanctions à sa discrétion.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+            <a href="{{ path('app_forum') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                ← Retour au forum
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

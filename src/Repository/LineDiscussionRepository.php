@@ -159,4 +159,18 @@ class LineDiscussionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findGeneralOrdered(): array
+    {
+        return $this->createQueryBuilder('d')
+            ->leftJoin('d.author', 'a')
+            ->addSelect('a')
+            ->leftJoin('d.replies', 'r')
+            ->addSelect('r')
+            ->where('d.line IS NULL')
+            ->orderBy('d.isPinned', 'DESC')
+            ->addOrderBy('d.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

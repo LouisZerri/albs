@@ -4,7 +4,8 @@
 {% endblock %}
 
 {% block body %}
-	<div class="max-w-7xl mx-auto px-4 py-8">
+	<div
+		class="max-w-7xl mx-auto px-4 py-8">
 		{# En-tête #}
 		<div class="mb-10">
 			<h1 class="text-5xl font-bold text-gray-900 mb-3">💬 Forum de la communauté</h1>
@@ -48,13 +49,7 @@
 		<div class="mb-8">
 			<form method="get" action="{{ path('app_forum') }}" class="flex gap-4">
 				<div class="flex-grow relative">
-					<input 
-						type="text" 
-						name="q" 
-						value="{{ searchQuery }}"
-						placeholder="Rechercher une discussion, un auteur..." 
-						class="w-full px-6 py-4 pl-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm"
-					>
+					<input type="text" name="q" value="{{ searchQuery }}" placeholder="Rechercher une discussion, un auteur..." class="w-full px-6 py-4 pl-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm">
 					<span class="absolute left-5 top-1/2 -translate-y-1/2 text-2xl">🔍</span>
 				</div>
 				<button type="submit" class="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl cursor-pointer">
@@ -72,10 +67,31 @@
 		{% if searchQuery %}
 			<div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
 				<p class="text-blue-800">
-					🔍 Résultats pour "<strong>{{ searchQuery }}</strong>" — {{ recentDiscussions|length }} discussion(s) trouvée(s)
+					🔍 Résultats pour "<strong>{{ searchQuery }}</strong>" —
+					{{ recentDiscussions|length }}
+					discussion(s) trouvée(s)
 				</p>
 			</div>
 		{% endif %}
+
+		{# Forum Général #}
+		<a href="{{ path('app_forum_general') }}" class="block mb-6 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl shadow-lg p-6 hover:shadow-xl hover:scale-[1.01] transition-all duration-300">
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-4">
+					<div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-4xl">
+						💬
+					</div>
+					<div>
+						<h2 class="text-2xl font-bold text-white">Forum Général</h2>
+						<p class="text-purple-100">Discussions ouvertes à tous les sujets</p>
+					</div>
+				</div>
+				<div class="text-right">
+					<p class="text-3xl font-black text-white">{{ generalDiscussionsCount }}</p>
+					<p class="text-purple-100 text-sm">discussion{{ generalDiscussionsCount > 1 ? 's' : '' }}</p>
+				</div>
+			</div>
+		</a>
 
 		{# Liste des lignes en accordéon #}
 		<div class="mb-10" x-data="{ open: false }">
@@ -87,7 +103,7 @@
 						<p class="text-gray-600">Sélectionnez une ligne pour voir les discussions</p>
 					</div>
 				</div>
-				<svg class="w-8 h-8 text-gray-600 transition-transform duration-300" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<svg class="w-8 h-8 text-gray-600 transition-transform duration-300" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
 				</svg>
 			</button>
@@ -103,7 +119,8 @@
 									{{ line.number }}
 								{% endif %}
 							</div>
-							<h3 class="font-bold text-gray-900 text-lg mb-2">Ligne {{ line.number }}</h3>
+							<h3 class="font-bold text-gray-900 text-lg mb-2">Ligne
+								{{ line.number }}</h3>
 							<p class="text-sm text-gray-600">{{ line.name }}</p>
 						</a>
 					{% endfor %}
@@ -140,17 +157,29 @@
 											{{ discussion.title }}
 										</a>
 									</div>
-									<div class="flex items-center gap-4 text-sm text-gray-600">
-										<a href="{{ path('app_forum_line', {lineNumber: discussion.line.number}) }}" class="flex items-center gap-2 hover:text-blue-600">
-											<div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold" style="background-color: {{ discussion.line.color }}; color: {{ discussion.line.textColor }};">
-												{% if 'bis' in discussion.line.number %}
-													{{ discussion.line.number|replace({'bis': ''}) }}<span class="text-xs">bis</span>
-												{% else %}
-													{{ discussion.line.number }}
-												{% endif %}
-											</div>
-											Ligne {{ discussion.line.number }}
-										</a>
+									<div
+										class="flex items-center gap-4 text-sm text-gray-600">
+										{# Badge ligne ou Forum Général #}
+										{% if discussion.line %}
+											<a href="{{ path('app_forum_line', {lineNumber: discussion.line.number}) }}" class="flex items-center gap-2 hover:text-blue-600">
+												<div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold" style="background-color: {{ discussion.line.color }}; color: {{ discussion.line.textColor }};">
+													{% if 'bis' in discussion.line.number %}
+														{{ discussion.line.number|replace({'bis': ''}) }}<span class="text-xs">bis</span>
+													{% else %}
+														{{ discussion.line.number }}
+													{% endif %}
+												</div>
+												Ligne
+												{{ discussion.line.number }}
+											</a>
+										{% else %}
+											<a href="{{ path('app_forum_general') }}" class="flex items-center gap-2 hover:text-purple-600">
+												<div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white text-sm">
+													💬
+												</div>
+												Forum Général
+											</a>
+										{% endif %}
 										<span>•</span>
 										<a href="{{ path('app_profile_public', {username: discussion.author.username}) }}" class="flex items-center gap-2 hover:text-blue-600">
 											<div class="w-6 h-6 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
@@ -167,8 +196,10 @@
 									</div>
 								</div>
 								<a href="{{ path('app_discussion_show', {id: discussion.id}) }}" class="text-sm text-gray-500 text-right ml-4 hover:text-blue-600">
-									<div class="font-semibold text-gray-900">💬 {{ discussion.replyCount }}</div>
-									<div class="mt-1">👁️ {{ discussion.viewCount }}</div>
+									<div class="font-semibold text-gray-900">💬
+										{{ discussion.replyCount }}</div>
+									<div class="mt-1">👁️
+										{{ discussion.viewCount }}</div>
 								</a>
 							</div>
 						</div>

@@ -17,7 +17,7 @@ class LineDiscussion
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Line $line = null;
 
     #[ORM\ManyToOne]

@@ -9,7 +9,11 @@
         <nav class="flex items-center text-sm text-gray-600">
             <a href="{{ path('app_forum') }}" class="hover:text-blue-600">Forum</a>
             <span class="mx-2">/</span>
-            <a href="{{ path('app_forum_line', {lineNumber: discussion.line.number}) }}" class="hover:text-blue-600">Ligne {{ discussion.line.number }}</a>
+            {% if discussion.line %}
+                <a href="{{ path('app_forum_line', {lineNumber: discussion.line.number}) }}" class="hover:text-blue-600">Ligne {{ discussion.line.number }}</a>
+            {% else %}
+                <a href="{{ path('app_forum_general') }}" class="hover:text-blue-600">Forum Général</a>
+            {% endif %}
             <span class="mx-2">/</span>
             <span class="text-gray-900 font-medium">{{ discussion.title }}</span>
         </nav>
@@ -62,16 +66,26 @@
                         <h1 class="text-4xl font-bold text-gray-900">{{ discussion.title }}</h1>
                     </div>
                     <div class="flex items-center gap-4 text-base text-gray-600">
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg" style="background-color: {{ discussion.line.color }}; color: {{ discussion.line.textColor }};">
-                                {% if 'bis' in discussion.line.number %}
-                                    {{ discussion.line.number|replace({'bis': ''}) }}<span class="text-xs">bis</span>
-                                {% else %}
-                                    {{ discussion.line.number }}
-                                {% endif %}
+                        {# Badge de la ligne ou Forum Général #}
+                        {% if discussion.line %}
+                            <div class="flex items-center gap-2">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg" style="background-color: {{ discussion.line.color }}; color: {{ discussion.line.textColor }};">
+                                    {% if 'bis' in discussion.line.number %}
+                                        {{ discussion.line.number|replace({'bis': ''}) }}<span class="text-xs">bis</span>
+                                    {% else %}
+                                        {{ discussion.line.number }}
+                                    {% endif %}
+                                </div>
+                                <span class="font-medium">Ligne {{ discussion.line.number }}</span>
                             </div>
-                            <span class="font-medium">Ligne {{ discussion.line.number }}</span>
-                        </div>
+                        {% else %}
+                            <div class="flex items-center gap-2">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-xl">
+                                    💬
+                                </div>
+                                <span class="font-medium">Forum Général</span>
+                            </div>
+                        {% endif %}
                         <span>•</span>
                         <div class="flex items-center gap-2">
                             {# Avatar de l'auteur #}
@@ -324,7 +338,10 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs text-gray-500">
+                        📜 En répondant, vous acceptez les <a href="{{ path('app_forum_rules') }}" target="_blank" class="text-blue-600 hover:underline">règles du forum</a>
+                    </p>
                     <button type="submit" id="reply-submit-btn" :disabled="submitting" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-10 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                         <span x-show="!submitting">Envoyer la réponse</span>
                         <span x-show="submitting" class="flex items-center gap-2">

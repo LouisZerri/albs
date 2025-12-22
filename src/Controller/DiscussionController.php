@@ -89,6 +89,61 @@ class DiscussionController extends AbstractController
         ]);
     }
 
+    #[Route('/new', name: 'app_discussion_new_general')]
+    #[IsGranted('ROLE_USER')]
+    public function newGeneral(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ForumImageUploader $imageUploader
+    ): Response {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if ($user->isBanned()) {
+            $this->addFlash('error', '🚫 Votre compte est banni. Vous ne pouvez pas créer de discussion.');
+            return $this->redirectToRoute('app_forum');
+        }
+
+        $discussion = new LineDiscussion();
+        $discussion->setAuthor($user);
+        // Pas de ligne associée = discussion générale
+
+        $form = $this->createForm(DiscussionType::class, $discussion);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($discussion);
+
+            // Gérer les images uploadées
+            $uploadedFiles = $request->files->get('images', []);
+            foreach ($uploadedFiles as $file) {
+                if ($file) {
+                    $result = $imageUploader->upload($file);
+                    if ($result['success']) {
+                        $forumImage = new ForumImage();
+                        $forumImage->setFilename($result['filename']);
+                        $forumImage->setOriginalFilename($result['originalFilename']);
+                        $forumImage->setFileSize($result['fileSize']);
+                        $forumImage->setUploadedBy($user);
+                        $forumImage->setDiscussion($discussion);
+                        $entityManager->persist($forumImage);
+                    } else {
+                        $this->addFlash('warning', $result['error']);
+                    }
+                }
+            }
+
+            $entityManager->flush();
+
+            $this->addFlash('success', '✅ Discussion créée avec succès !');
+            return $this->redirectToRoute('app_discussion_show', ['id' => $discussion->getId()]);
+        }
+
+        return $this->render('discussion/new_general.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
     #[Route('/{id}', name: 'app_discussion_show', requirements: ['id' => '\d+'])]
     public function show(
         int $id,
@@ -100,6 +155,7 @@ class DiscussionController extends AbstractController
         ForumImageUploader $imageUploader,
         LineDiscussionRepository $discussionRepository
     ): Response {
+        
         // Charger la discussion avec ses relations
         $discussion = $discussionRepository->findWithRelations($id);
 
@@ -210,13 +266,18 @@ class DiscussionController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager
     ): Response {
+
         if ($this->isCsrfTokenValid('delete' . $discussion->getId(), $request->request->get('_token'))) {
-            $lineNumber = $discussion->getLine()->getNumber();
+            $line = $discussion->getLine();
             $entityManager->remove($discussion);
             $entityManager->flush();
 
             $this->addFlash('success', '✅ Discussion supprimée.');
-            return $this->redirectToRoute('app_forum_line', ['lineNumber' => $lineNumber]);
+            
+            if ($line) {
+                return $this->redirectToRoute('app_forum_line', ['lineNumber' => $line->getNumber()]);
+            }
+            return $this->redirectToRoute('app_forum_general');
         }
 
         return $this->redirectToRoute('app_discussion_show', ['id' => $discussion->getId()]);
