@@ -2,14 +2,17 @@
 
 namespace App\Controller;
 
+use App\Entity\ForumImage;
 use App\Entity\LineDiscussion;
 use App\Entity\LineDiscussionReply;
 use App\Entity\User;
 use App\Form\DiscussionType;
 use App\Form\ReplyType;
 use App\Repository\LineDiscussionReplyRepository;
+use App\Repository\LineDiscussionRepository;
 use App\Repository\LineRepository;
 use App\Repository\WarningRepository;
+use App\Service\ForumImageUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,6 +24,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/discussion')]
 class DiscussionController extends AbstractController
 {
+
     #[Route('/new/{lineNumber}', name: 'app_discussion_new')]
     #[IsGranted('ROLE_USER')]
     public function new(
@@ -28,6 +32,7 @@ class DiscussionController extends AbstractController
         Request $request,
         LineRepository $lineRepository,
         EntityManagerInterface $entityManager,
+        ForumImageUploader $imageUploader
     ): Response {
         /** @var User $user */
         $user = $this->getUser();
@@ -50,7 +55,28 @@ class DiscussionController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             $entityManager->persist($discussion);
+
+            // Gérer les images uploadées
+            $uploadedFiles = $request->files->get('images', []);
+            foreach ($uploadedFiles as $file) {
+                if ($file) {
+                    $result = $imageUploader->upload($file);
+                    if ($result['success']) {
+                        $forumImage = new ForumImage();
+                        $forumImage->setFilename($result['filename']);
+                        $forumImage->setOriginalFilename($result['originalFilename']);
+                        $forumImage->setFileSize($result['fileSize']);
+                        $forumImage->setUploadedBy($user);
+                        $forumImage->setDiscussion($discussion);
+                        $entityManager->persist($forumImage);
+                    } else {
+                        $this->addFlash('warning', $result['error']);
+                    }
+                }
+            }
+
             $entityManager->flush();
 
             $this->addFlash('success', '✅ Discussion créée avec succès !');
@@ -65,14 +91,24 @@ class DiscussionController extends AbstractController
 
     #[Route('/{id}', name: 'app_discussion_show', requirements: ['id' => '\d+'])]
     public function show(
-        LineDiscussion $discussion,
+        int $id,
         Request $request,
         EntityManagerInterface $entityManager,
         WarningRepository $warningRepository,
         LineDiscussionReplyRepository $replyRepository,
-        PaginatorInterface $paginator
+        PaginatorInterface $paginator,
+        ForumImageUploader $imageUploader,
+        LineDiscussionRepository $discussionRepository
     ): Response {
+        // Charger la discussion avec ses relations
+        $discussion = $discussionRepository->findWithRelations($id);
+
+        if (!$discussion) {
+            throw $this->createNotFoundException('Discussion introuvable');
+        }
+
         // Incrémenter le compteur de vues UNIQUEMENT si ce n'est pas l'auteur
+        // et si l'utilisateur n'a pas déjà vu cette discussion récemment
         $currentUser = $this->getUser();
         $shouldCount = true;
 
@@ -80,9 +116,19 @@ class DiscussionController extends AbstractController
             $shouldCount = false;
         }
 
+        // Vérifier si déjà vu dans cette session
+        $viewedDiscussions = $request->getSession()->get('viewed_discussions', []);
+        if (in_array($discussion->getId(), $viewedDiscussions)) {
+            $shouldCount = false;
+        }
+
         if ($shouldCount) {
             $discussion->incrementViewCount();
             $entityManager->flush();
+
+            // Marquer comme vu dans la session
+            $viewedDiscussions[] = $discussion->getId();
+            $request->getSession()->set('viewed_discussions', $viewedDiscussions);
         }
 
         $reply = new LineDiscussionReply();
@@ -101,13 +147,32 @@ class DiscussionController extends AbstractController
                 if ($form->isSubmitted() && $form->isValid()) {
                     $discussion->setUpdatedAt(new \DateTimeImmutable());
                     $entityManager->persist($reply);
+
+                    // Gérer les images uploadées
+                    $uploadedFiles = $request->files->get('images', []);
+                    foreach ($uploadedFiles as $file) {
+                        if ($file) {
+                            $result = $imageUploader->upload($file);
+                            if ($result['success']) {
+                                $forumImage = new ForumImage();
+                                $forumImage->setFilename($result['filename']);
+                                $forumImage->setOriginalFilename($result['originalFilename']);
+                                $forumImage->setFileSize($result['fileSize']);
+                                $forumImage->setUploadedBy($user);
+                                $forumImage->setReply($reply);
+                                $entityManager->persist($forumImage);
+                            } else {
+                                $this->addFlash('warning', $result['error']);
+                            }
+                        }
+                    }
+
                     $entityManager->flush();
 
                     // Calculer la dernière page
-                    $totalReplies = count($discussion->getReplies());
+                    $totalReplies = $replyRepository->count(['discussion' => $discussion]);
                     $lastPage = (int) ceil($totalReplies / 15);
 
-                    // Redirection simple vers la dernière page
                     return $this->redirectToRoute('app_discussion_show', [
                         'id' => $discussion->getId(),
                         'page' => $lastPage,
@@ -125,23 +190,16 @@ class DiscussionController extends AbstractController
             15
         );
 
-        // Récupérer tous les IDs de messages déjà avertis
-        $warnedPostIds = [];
-        foreach ($pagination as $replyItem) {
-            $warnings = $warningRepository->findBy([
-                'user' => $replyItem->getAuthor(),
-                'relatedPostId' => $replyItem->getId()
-            ]);
-            if (!empty($warnings)) {
-                $warnedPostIds[] = $replyItem->getId();
-            }
-        }
+        // Récupérer les IDs des réponses en une seule fois
+        $replyIds = array_map(fn($reply) => $reply->getId(), iterator_to_array($pagination));
+        $warnedPostIds = $replyIds ? $warningRepository->findWarnedPostIds($replyIds) : [];
 
         return $this->render('discussion/show.html.twig', [
             'discussion' => $discussion,
             'pagination' => $pagination,
             'form' => $form?->createView(),
             'warnedPostIds' => $warnedPostIds,
+            'replyCount' => $pagination->getTotalItemCount(),
         ]);
     }
 

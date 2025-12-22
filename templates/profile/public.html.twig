@@ -9,38 +9,6 @@
 	<div
 		class="max-w-6xl mx-auto px-4">
 
-		{# Section admin - Promouvoir/Rétrograder (admin seulement) #}
-		{% if is_granted('ROLE_ADMIN') and not user.isAdmin %}
-			<div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-gray-100">
-				<div class="bg-gradient-to-r from-purple-600 to-violet-700 px-6 py-5">
-					<h2 class="text-2xl font-black text-white flex items-center space-x-2">
-						<span>👑</span>
-						<span>Administration</span>
-					</h2>
-				</div>
-				<div class="p-6">
-					<form method="post" action="{{ path('app_admin_promote', {id: user.id}) }}" onsubmit="return confirm('{{ user.isModerator ? 'Rétrograder' : 'Promouvoir' }} {{ user.username }} ?')">
-						<input type="hidden" name="_token" value="{{ csrf_token('promote_' ~ user.id) }}">
-						{% if user.isModerator %}
-							<button type="submit" class="w-full px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2">
-								<span>↓</span>
-								<span>Rétrograder
-									{{ user.username }}
-									(retirer modérateur)</span>
-							</button>
-						{% else %}
-							<button type="submit" class="w-full px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2">
-								<span>↑</span>
-								<span>Promouvoir
-									{{ user.username }}
-									modérateur</span>
-							</button>
-						{% endif %}
-					</form>
-				</div>
-			</div>
-		{% endif %}
-
 		{# En-tête du profil #}
 		<div
 			class="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-3xl shadow-2xl p-8 mb-8 text-white relative overflow-hidden">
@@ -101,14 +69,51 @@
 						{% endif %}
 					</div>
 
-					<p class="text-sm text-blue-200 mt-2 flex items-center space-x-2">
-						<span>📅</span>
-						<span>Membre depuis le
-							{{ user.createdAt|date('d/m/Y') }}</span>
-					</p>
+					<div class="flex items-center gap-4 mt-2">
+						<p class="text-sm text-blue-200 flex items-center space-x-2">
+							<span>📅</span>
+							<span>Membre depuis le
+								{{ user.createdAt|date('d/m/Y') }}</span>
+						</p>
+
+						{# Bouton Bannir #}
+						{% if is_granted('ROLE_MODERATOR') and not user.isAdmin and app.user.id != user.id and not user.isBanned %}
+							<button onclick="document.getElementById('banModal').classList.remove('hidden')" class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm font-bold rounded-full transition-colors cursor-pointer">
+								🚫 Bannir
+							</button>
+						{% endif %}
+					</div>
 				</div>
 			</div>
 		</div>
+
+		{# Modal de bannissement #}
+		{% if is_granted('ROLE_MODERATOR') and not user.isAdmin and app.user.id != user.id and not user.isBanned %}
+			<div id="banModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+				<div class="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4">
+					<h3 class="text-xl font-bold text-gray-900 mb-4">🚫 Bannir
+						{{ user.username }}</h3>
+					<form method="post" action="{{ path('app_moderation_ban_user') }}">
+						<input type="hidden" name="_token" value="{{ csrf_token('ban_user') }}">
+						<input type="hidden" name="user_id" value="{{ user.id }}">
+
+						<div class="mb-4">
+							<label class="block text-sm font-medium text-gray-700 mb-2">Raison du bannissement</label>
+							<textarea name="reason" required rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Expliquez la raison..."></textarea>
+						</div>
+
+						<div class="flex gap-3">
+							<button type="button" onclick="document.getElementById('banModal').classList.add('hidden')" class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-xl transition-colors cursor-pointer">
+								Annuler
+							</button>
+							<button type="submit" class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors cursor-pointer">
+								Confirmer
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		{% endif %}
 
 		{# Statistiques globales #}
 		<div class="grid md:grid-cols-3 gap-6 mb-8">

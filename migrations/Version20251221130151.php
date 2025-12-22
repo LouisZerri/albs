@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20251220095154 extends AbstractMigration
+final class Version20251221130151 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -22,6 +22,7 @@ final class Version20251220095154 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE TABLE badge (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(100) NOT NULL, description LONGTEXT NOT NULL, icon VARCHAR(50) NOT NULL, type VARCHAR(20) NOT NULL, criteria JSON NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE badge_user (badge_id INT NOT NULL, user_id INT NOT NULL, INDEX IDX_299D3A50F7A2C2FC (badge_id), INDEX IDX_299D3A50A76ED395 (user_id), PRIMARY KEY (badge_id, user_id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE forum_image (id INT AUTO_INCREMENT NOT NULL, filename VARCHAR(255) NOT NULL, original_filename VARCHAR(255) DEFAULT NULL, file_size INT NOT NULL, created_at DATETIME NOT NULL, discussion_id INT DEFAULT NULL, reply_id INT DEFAULT NULL, uploaded_by_id INT NOT NULL, INDEX IDX_DD49A2881ADED311 (discussion_id), INDEX IDX_DD49A2888A0E4E7F (reply_id), INDEX IDX_DD49A288A2B28FE8 (uploaded_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE line (id INT AUTO_INCREMENT NOT NULL, number VARCHAR(10) NOT NULL, name VARCHAR(100) NOT NULL, color VARCHAR(10) NOT NULL, text_color VARCHAR(20) DEFAULT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE line_discussion (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, is_pinned TINYINT(1) NOT NULL, is_locked TINYINT(1) NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, view_count INT NOT NULL, line_id INT NOT NULL, author_id INT NOT NULL, INDEX IDX_7E02EAE44D7B7542 (line_id), INDEX IDX_7E02EAE4F675F31B (author_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE line_discussion_reply (id INT AUTO_INCREMENT NOT NULL, content LONGTEXT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, is_edited TINYINT(1) NOT NULL, discussion_id INT NOT NULL, author_id INT NOT NULL, INDEX IDX_6C4721471ADED311 (discussion_id), INDEX IDX_6C472147F675F31B (author_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
@@ -32,6 +33,9 @@ final class Version20251220095154 extends AbstractMigration
         $this->addSql('CREATE TABLE messenger_messages (id BIGINT AUTO_INCREMENT NOT NULL, body LONGTEXT NOT NULL, headers LONGTEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at DATETIME NOT NULL, available_at DATETIME NOT NULL, delivered_at DATETIME DEFAULT NULL, INDEX IDX_75EA56E0FB7336F0 (queue_name), INDEX IDX_75EA56E0E3BD61CE (available_at), INDEX IDX_75EA56E016BA31DB (delivered_at), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('ALTER TABLE badge_user ADD CONSTRAINT FK_299D3A50F7A2C2FC FOREIGN KEY (badge_id) REFERENCES badge (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE badge_user ADD CONSTRAINT FK_299D3A50A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE forum_image ADD CONSTRAINT FK_DD49A2881ADED311 FOREIGN KEY (discussion_id) REFERENCES line_discussion (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE forum_image ADD CONSTRAINT FK_DD49A2888A0E4E7F FOREIGN KEY (reply_id) REFERENCES line_discussion_reply (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE forum_image ADD CONSTRAINT FK_DD49A288A2B28FE8 FOREIGN KEY (uploaded_by_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE line_discussion ADD CONSTRAINT FK_7E02EAE44D7B7542 FOREIGN KEY (line_id) REFERENCES line (id)');
         $this->addSql('ALTER TABLE line_discussion ADD CONSTRAINT FK_7E02EAE4F675F31B FOREIGN KEY (author_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE line_discussion_reply ADD CONSTRAINT FK_6C4721471ADED311 FOREIGN KEY (discussion_id) REFERENCES line_discussion (id)');
@@ -49,6 +53,9 @@ final class Version20251220095154 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE badge_user DROP FOREIGN KEY FK_299D3A50F7A2C2FC');
         $this->addSql('ALTER TABLE badge_user DROP FOREIGN KEY FK_299D3A50A76ED395');
+        $this->addSql('ALTER TABLE forum_image DROP FOREIGN KEY FK_DD49A2881ADED311');
+        $this->addSql('ALTER TABLE forum_image DROP FOREIGN KEY FK_DD49A2888A0E4E7F');
+        $this->addSql('ALTER TABLE forum_image DROP FOREIGN KEY FK_DD49A288A2B28FE8');
         $this->addSql('ALTER TABLE line_discussion DROP FOREIGN KEY FK_7E02EAE44D7B7542');
         $this->addSql('ALTER TABLE line_discussion DROP FOREIGN KEY FK_7E02EAE4F675F31B');
         $this->addSql('ALTER TABLE line_discussion_reply DROP FOREIGN KEY FK_6C4721471ADED311');
@@ -61,6 +68,7 @@ final class Version20251220095154 extends AbstractMigration
         $this->addSql('ALTER TABLE warning DROP FOREIGN KEY FK_404E9CC6D0AFA354');
         $this->addSql('DROP TABLE badge');
         $this->addSql('DROP TABLE badge_user');
+        $this->addSql('DROP TABLE forum_image');
         $this->addSql('DROP TABLE line');
         $this->addSql('DROP TABLE line_discussion');
         $this->addSql('DROP TABLE line_discussion_reply');

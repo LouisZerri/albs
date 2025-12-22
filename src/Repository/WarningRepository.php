@@ -18,19 +18,14 @@ class WarningRepository extends ServiceEntityRepository
 
     public function findWarnedPostIds(array $postIds): array
     {
-        if (empty($postIds)) {
-            return [];
-        }
+        $result = $this->createQueryBuilder('w')
+            ->select('w.relatedPostId')
+            ->where('w.relatedPostId IN (:postIds)')
+            ->setParameter('postIds', $postIds)
+            ->getQuery()
+            ->getScalarResult();
 
-        return array_column(
-            $this->createQueryBuilder('w')
-                ->select('DISTINCT w.relatedPostId')
-                ->where('w.relatedPostId IN (:ids)')
-                ->setParameter('ids', $postIds)
-                ->getQuery()
-                ->getScalarResult(),
-            'relatedPostId'
-        );
+        return array_column($result, 'relatedPostId');
     }
 
     public function findLatestWithRelations(int $limit = 20): array

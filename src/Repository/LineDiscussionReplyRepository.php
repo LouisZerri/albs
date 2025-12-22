@@ -32,8 +32,10 @@ class LineDiscussionReplyRepository extends ServiceEntityRepository
     public function createQueryForDiscussionReplies(LineDiscussion $discussion): QueryBuilder
     {
         return $this->createQueryBuilder('r')
-            ->select('r', 'a')
+            ->select('r', 'a', 'i', 'b')
             ->leftJoin('r.author', 'a')
+            ->leftJoin('r.images', 'i')
+            ->leftJoin('a.badges', 'b')
             ->where('r.discussion = :discussion')
             ->setParameter('discussion', $discussion)
             ->orderBy('r.createdAt', 'ASC');
@@ -42,9 +44,10 @@ class LineDiscussionReplyRepository extends ServiceEntityRepository
     public function createQueryForRecentReplies(): QueryBuilder
     {
         return $this->createQueryBuilder('r')
-            ->select('r', 'a', 'd')
+            ->select('r', 'a', 'd', 'i')
             ->leftJoin('r.author', 'a')
             ->leftJoin('r.discussion', 'd')
+            ->leftJoin('r.images', 'i')
             ->orderBy('r.createdAt', 'DESC');
     }
 

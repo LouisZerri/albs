@@ -1,334 +1,439 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-	{{ discussion.title }}
-	- À la bonne station
-{% endblock %}
+{% block title %}{{ discussion.title }} - À la bonne station{% endblock %}
 
 {% block body %}
-	<div
-		class="max-w-6xl mx-auto px-4 py-8">
-		{# Breadcrumb #}
-		<div class="mb-6">
-			<nav class="flex items-center text-sm text-gray-600">
-				<a href="{{ path('app_forum') }}" class="hover:text-blue-600">Forum</a>
-				<span class="mx-2">/</span>
-				<a href="{{ path('app_forum_line', {lineNumber: discussion.line.number}) }}" class="hover:text-blue-600">Ligne
-					{{ discussion.line.number }}</a>
-				<span class="mx-2">/</span>
-				<span class="text-gray-900 font-medium">{{ discussion.title }}</span>
-			</nav>
-		</div>
+<div class="max-w-6xl mx-auto px-4 py-8">
+    {# Breadcrumb #}
+    <div class="mb-6">
+        <nav class="flex items-center text-sm text-gray-600">
+            <a href="{{ path('app_forum') }}" class="hover:text-blue-600">Forum</a>
+            <span class="mx-2">/</span>
+            <a href="{{ path('app_forum_line', {lineNumber: discussion.line.number}) }}" class="hover:text-blue-600">Ligne {{ discussion.line.number }}</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900 font-medium">{{ discussion.title }}</span>
+        </nav>
+    </div>
 
-		{# Boutons modération de la discussion #}
-		{% if is_granted('ROLE_MODERATOR') %}
-			<div class="bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl p-4 mb-6 flex items-center justify-between">
-				<span class="text-gray-700 font-medium">🛡️ Actions de modération</span>
-				<div
-					class="flex gap-3">
-					{# Épingler/Désépingler #}
-					<form method="post" action="{{ path('app_discussion_pin', {id: discussion.id}) }}" class="inline">
-						<input type="hidden" name="_token" value="{{ csrf_token('pin' ~ discussion.id) }}">
-						<button type="submit" class="px-4 py-2 {{ discussion.isPinned ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-500 hover:bg-gray-600' }} text-white rounded-lg text-sm font-medium transition-colors cursor-pointer">
-							{{ discussion.isPinned ? '📍 Désépingler' : '📌 Épingler' }}
-						</button>
-					</form>
+    {# Boutons modération de la discussion #}
+    {% if is_granted('ROLE_MODERATOR') %}
+        <div class="bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+            <span class="text-gray-700 font-medium">🛡️ Actions de modération</span>
+            <div class="flex gap-3">
+                {# Épingler/Désépingler #}
+                <form method="post" action="{{ path('app_discussion_pin', {id: discussion.id}) }}" class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('pin' ~ discussion.id) }}">
+                    <button type="submit" class="px-4 py-2 {{ discussion.isPinned ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-500 hover:bg-gray-600' }} text-white rounded-lg text-sm font-medium transition-colors cursor-pointer">
+                        {{ discussion.isPinned ? '📍 Désépingler' : '📌 Épingler' }}
+                    </button>
+                </form>
 
-					{# Verrouiller/Déverrouiller #}
-					<form method="post" action="{{ path('app_discussion_lock', {id: discussion.id}) }}" class="inline">
-						<input type="hidden" name="_token" value="{{ csrf_token('lock' ~ discussion.id) }}">
-						<button type="submit" class="px-4 py-2 {{ discussion.isLocked ? 'bg-green-500 hover:bg-green-600' : 'bg-orange-500 hover:bg-orange-600' }} text-white rounded-lg text-sm font-medium transition-colors cursor-pointer">
-							{{ discussion.isLocked ? '🔓 Déverrouiller' : '🔒 Verrouiller' }}
-						</button>
-					</form>
+                {# Verrouiller/Déverrouiller #}
+                <form method="post" action="{{ path('app_discussion_lock', {id: discussion.id}) }}" class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('lock' ~ discussion.id) }}">
+                    <button type="submit" class="px-4 py-2 {{ discussion.isLocked ? 'bg-green-500 hover:bg-green-600' : 'bg-orange-500 hover:bg-orange-600' }} text-white rounded-lg text-sm font-medium transition-colors cursor-pointer">
+                        {{ discussion.isLocked ? '🔓 Déverrouiller' : '🔒 Verrouiller' }}
+                    </button>
+                </form>
 
-					{# Supprimer #}
-					<form method="post" action="{{ path('app_discussion_delete', {id: discussion.id}) }}" onsubmit="return confirm('Supprimer cette discussion et tous ses messages ?')" class="inline">
-						<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ discussion.id) }}">
-						<button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer">
-							🗑️ Supprimer la discussion
-						</button>
-					</form>
-				</div>
-			</div>
-		{% endif %}
+                {# Supprimer #}
+                <form method="post" action="{{ path('app_discussion_delete', {id: discussion.id}) }}" onsubmit="return confirm('Supprimer cette discussion et tous ses messages ?')" class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ discussion.id) }}">
+                    <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer">
+                        🗑️ Supprimer la discussion
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
 
+    {# Discussion principale #}
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+        <div class="p-8">
+            <div class="flex items-start justify-between mb-6">
+                <div class="flex-grow">
+                    <div class="flex items-center gap-3 mb-4">
+                        {% if discussion.isPinned %}
+                            <span class="text-3xl">📌</span>
+                        {% endif %}
+                        {% if discussion.isLocked %}
+                            <span class="text-3xl">🔒</span>
+                        {% endif %}
+                        <h1 class="text-4xl font-bold text-gray-900">{{ discussion.title }}</h1>
+                    </div>
+                    <div class="flex items-center gap-4 text-base text-gray-600">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg" style="background-color: {{ discussion.line.color }}; color: {{ discussion.line.textColor }};">
+                                {% if 'bis' in discussion.line.number %}
+                                    {{ discussion.line.number|replace({'bis': ''}) }}<span class="text-xs">bis</span>
+                                {% else %}
+                                    {{ discussion.line.number }}
+                                {% endif %}
+                            </div>
+                            <span class="font-medium">Ligne {{ discussion.line.number }}</span>
+                        </div>
+                        <span>•</span>
+                        <div class="flex items-center gap-2">
+                            {# Avatar de l'auteur #}
+                            <div class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+                                {% if discussion.author.avatarUrl %}
+                                    <img src="{{ asset('uploads/avatars/' ~ discussion.author.avatarUrl) }}" alt="{{ discussion.author.username }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <span class="text-white font-bold text-sm">{{ discussion.author.username|first|upper }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{{ path('app_profile_public', {username: discussion.author.username}) }}" class="font-bold hover:text-blue-600 flex items-center gap-1">
+                                <span class="hover:underline">{{ discussion.author.username }}</span>
+                                {% for badge in discussion.author.badges %}
+                                    {% if badge.id in discussion.author.displayedBadges %}
+                                        <span class="text-base" title="{{ badge.name }}">{{ badge.icon }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </a>
+                        </div>
+                        <span>•</span>
+                        <span>{{ discussion.createdAt|date('d/m/Y à H:i') }}</span>
+                        <span>•</span>
+                        <span>👁️ {{ discussion.viewCount }} vues</span>
+                    </div>
+                </div>
+            </div>
 
-		{# Discussion principale #}
-		<div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-			<div class="p-8">
-				<div class="flex items-start justify-between mb-6">
-					<div class="flex-grow">
-						<div class="flex items-center gap-3 mb-4">
-							{% if discussion.isPinned %}
-								<span class="text-3xl">📌</span>
-							{% endif %}
-							{% if discussion.isLocked %}
-								<span class="text-3xl">🔒</span>
-							{% endif %}
-							<h1 class="text-4xl font-bold text-gray-900">{{ discussion.title }}</h1>
-						</div>
-						<div class="flex items-center gap-4 text-base text-gray-600">
-							<div class="flex items-center gap-2">
-								<div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg" style="background-color: {{ discussion.line.color }}; color: {{ discussion.line.textColor }};">
-									{% if 'bis' in discussion.line.number %}
-										{{ discussion.line.number|replace({'bis': ''}) }}<span class="text-xs">bis</span>
-									{% else %}
-										{{ discussion.line.number }}
-									{% endif %}
-								</div>
-								<span class="font-medium">Ligne
-									{{ discussion.line.number }}</span>
-							</div>
-							<span>•</span>
-							<div
-								class="flex items-center gap-2">
-								{# Avatar de l'auteur #}
-								<div class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
-									{% if discussion.author.avatarUrl %}
-										<img src="{{ asset('uploads/avatars/' ~ discussion.author.avatarUrl) }}" alt="{{ discussion.author.username }}" class="w-full h-full object-cover">
-									{% else %}
-										<span class="text-white font-bold text-sm">{{ discussion.author.username|first|upper }}</span>
-									{% endif %}
-								</div>
-								<a href="{{ path('app_profile_public', {username: discussion.author.username}) }}" class="font-bold hover:text-blue-600 flex items-center gap-1">
-									<span class="hover:underline">{{ discussion.author.username }}</span>
-									{% for badge in discussion.author.badges %}
-										{% if badge.id in discussion.author.displayedBadges %}
-											<span class="text-base" title="{{ badge.name }}">{{ badge.icon }}</span>
-										{% endif %}
-									{% endfor %}
-								</a>
-							</div>
-							<span>•</span>
-							<span>{{ discussion.createdAt|date('d/m/Y à H:i') }}</span>
-							<span>•</span>
-							<span>👁️
-								{{ discussion.viewCount }}
-								vues</span>
-						</div>
-					</div>
-				</div>
+            <div class="mt-6 bg-gray-50 rounded-xl p-6 border-l-4 border-gray-300">
+                <p class="text-gray-800 text-lg whitespace-pre-line leading-relaxed">{{ discussion.content|forum_content }}</p>
+                
+                {# Images de la discussion #}
+                {% if discussion.images|length > 0 %}
+                    <div class="mt-4 grid {{ discussion.images|length == 1 ? 'grid-cols-1 max-w-lg' : (discussion.images|length == 2 ? 'grid-cols-2' : 'grid-cols-3') }} gap-3">
+                        {% for image in discussion.images %}
+                            <a href="{{ asset('uploads/forum/' ~ image.filename) }}" target="_blank" class="block group">
+                                <img src="{{ asset('uploads/forum/' ~ image.filename) }}" 
+									alt="{{ image.originalFilename }}"
+									class="w-full h-auto max-h-96 object-contain rounded-xl border border-gray-200 group-hover:border-blue-500 group-hover:shadow-lg transition-all">
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
-				<div class="mt-6 bg-gray-50 rounded-xl p-6 border-l-4 border-gray-300">
-					<p class="text-gray-800 text-lg whitespace-pre-line leading-relaxed">{{ discussion.content }}</p>
-				</div>
-			</div>
-		</div>
+    {# Réponses #}
+    {% if pagination.items|length > 0 %}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+            <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+                <h2 class="text-2xl font-bold text-gray-900">💬 {{ replyCount }} réponse{{ replyCount > 1 ? 's' : '' }}</h2>
+            </div>
 
-		{# Réponses #}
-		{% if pagination.items|length > 0 %}
-			<div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-				<div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
-					<h2 class="text-2xl font-bold text-gray-900">💬
-						{{ discussion.replyCount }}
-						réponse{{ discussion.replyCount > 1 ? 's' : '' }}</h2>
-				</div>
+            <div class="divide-y divide-gray-200">
+                {% for reply in pagination %}
+                    <div class="p-8 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start gap-4">
+                            {# Avatar de l'utilisateur qui répond #}
+                            <div class="flex-shrink-0">
+                                <div class="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center shadow-md">
+                                    {% if reply.author.avatarUrl %}
+                                        <img src="{{ asset('uploads/avatars/' ~ reply.author.avatarUrl) }}" alt="{{ reply.author.username }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <span class="text-white font-bold text-xl">{{ reply.author.username|first|upper }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <a href="{{ path('app_profile_public', {username: reply.author.username}) }}" class="font-bold text-gray-900 text-lg hover:text-blue-600 flex items-center gap-1 group">
+                                            <span class="group-hover:underline">{{ reply.author.username }}</span>
+                                            {% for badge in reply.author.badges %}
+                                                {% if badge.id in reply.author.displayedBadges %}
+                                                    <span class="text-base" title="{{ badge.name }}">{{ badge.icon }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </a>
+                                        <span class="text-sm text-gray-500">{{ reply.createdAt|date('d/m/Y à H:i') }}</span>
+                                        {% if reply.isEdited %}
+                                            <span class="text-xs text-gray-400 italic">(modifié)</span>
+                                        {% endif %}
+                                    </div>
 
-				<div class="divide-y divide-gray-200">
-					{% for reply in pagination %}
-						<div class="p-8 hover:bg-gray-50 transition-colors">
-							<div
-								class="flex items-start gap-4">
-								{# Avatar de l'utilisateur qui répond #}
-								<div class="flex-shrink-0">
-									<div class="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center shadow-md">
-										{% if reply.author.avatarUrl %}
-											<img src="{{ asset('uploads/avatars/' ~ reply.author.avatarUrl) }}" alt="{{ reply.author.username }}" class="w-full h-full object-cover">
-										{% else %}
-											<span class="text-white font-bold text-xl">{{ reply.author.username|first|upper }}</span>
-										{% endif %}
-									</div>
-								</div>
-								<div class="flex-grow">
-									<div class="flex items-center justify-between mb-3">
-										<div class="flex items-center gap-3">
-											<a href="{{ path('app_profile_public', {username: reply.author.username}) }}" class="font-bold text-gray-900 text-lg hover:text-blue-600 flex items-center gap-1 group">
-												<span class="group-hover:underline">{{ reply.author.username }}</span>
-												{% for badge in reply.author.badges %}
-													{% if badge.id in reply.author.displayedBadges %}
-														<span class="text-base" title="{{ badge.name }}">{{ badge.icon }}</span>
-													{% endif %}
-												{% endfor %}
-											</a>
-											<span class="text-sm text-gray-500">{{ reply.createdAt|date('d/m/Y à H:i') }}</span>
-											{% if reply.isEdited %}
-												<span class="text-xs text-gray-400 italic">(modifié)</span>
-											{% endif %}
-										</div>
+                                    {# Boutons de modération #}
+                                    {% if is_granted('ROLE_MODERATOR') and app.user.id != reply.author.id %}
+                                        <div class="flex gap-2">
+                                            {% if reply.id not in warnedPostIds %}
+                                                <button onclick="warnUser({{ reply.author.id }}, {{ reply.id }}, '{{ reply.author.username|e('js') }}')" class="px-3 py-1 bg-orange-500 text-white rounded text-sm hover:bg-orange-600 transition-colors cursor-pointer">
+                                                    ⚠️ Avertir
+                                                </button>
+                                            {% else %}
+                                                <span class="px-3 py-1 bg-orange-100 text-orange-800 text-xs rounded font-semibold">
+                                                    ⚠️ Averti
+                                                </span>
+                                            {% endif %}
+                                            <form method="post" action="{{ path('app_reply_delete', {id: reply.id}) }}" onsubmit="return confirm('Supprimer ce message ?')" class="inline">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete_reply' ~ reply.id) }}">
+                                                <button type="submit" class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors cursor-pointer">
+                                                    🗑️ Supprimer
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="prose max-w-none">
+                                    <p class="text-gray-700 text-base whitespace-pre-line leading-relaxed">{{ reply.content|forum_content }}</p>
+                                    
+                                    {# Images de la réponse #}
+                                    {% if reply.images|length > 0 %}
+                                        <div class="mt-4 grid {{ reply.images|length == 1 ? 'grid-cols-1 max-w-lg' : (reply.images|length == 2 ? 'grid-cols-2' : 'grid-cols-3') }} gap-3">
+                                            {% for image in reply.images %}
+                                                <a href="{{ asset('uploads/forum/' ~ image.filename) }}" target="_blank" class="block group">
+                                                    <img src="{{ asset('uploads/forum/' ~ image.filename) }}" 
+														alt="{{ image.originalFilename }}"
+														class="w-full h-auto max-h-96 object-contain rounded-xl border border-gray-200 group-hover:border-blue-500 group-hover:shadow-lg transition-all">
+                                                </a>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
 
-										{# Boutons de modération - UNIQUEMENT si ce n'est pas l'auteur du message #}
-										{% if is_granted('ROLE_MODERATOR') and app.user.id != reply.author.id %}
-											<div
-												class="flex gap-2">
-												{# Afficher "Avertir" uniquement si CE message n'a pas encore été averti #}
-												{% if reply.id not in warnedPostIds %}
-													<button onclick="warnUser({{ reply.author.id }}, {{ reply.id }}, '{{ reply.author.username|e('js') }}')" class="px-3 py-1 bg-orange-500 text-white rounded text-sm hover:bg-orange-600 transition-colors cursor-pointer">
-														⚠️ Avertir
-													</button>
-												{% else %}
-													<span class="px-3 py-1 bg-orange-100 text-orange-800 text-xs rounded font-semibold">
-														⚠️ Averti
-													</span>
-												{% endif %}
-												<form method="post" action="{{ path('app_reply_delete', {id: reply.id}) }}" onsubmit="return confirm('Supprimer ce message ?')" class="inline">
-													<input type="hidden" name="_token" value="{{ csrf_token('delete_reply' ~ reply.id) }}">
-													<button type="submit" class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition-colors cursor-pointer">
-														🗑️ Supprimer
-													</button>
-												</form>
-											</div>
-										{% endif %}
-									</div>
-									<div class="prose max-w-none">
-										<p class="text-gray-700 text-base whitespace-pre-line leading-relaxed">{{ reply.content }}</p>
-									</div>
-								</div>
-							</div>
-						</div>
-					{% endfor %}
-				</div>
+            {# Pagination #}
+            {% if pagination.pageCount > 1 %}
+                <div class="px-8 py-6 bg-gray-50 border-t border-gray-200">
+                    <div class="flex items-center justify-center">
+                        {{ knp_pagination_render(pagination, 'pagination/tailwind_pagination.html.twig') }}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
 
-				{# Pagination #}
-				{% if pagination.pageCount > 1 %}
-					<div class="px-8 py-6 bg-gray-50 border-t border-gray-200">
-						<div class="flex items-center justify-center">
-							{{ knp_pagination_render(pagination, 'pagination/tailwind_pagination.html.twig') }}
-						</div>
-					</div>
-				{% endif %}
-			</div>
-		{% endif %}
+    {# Formulaire de réponse #}
+    {% if discussion.isLocked %}
+        <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 border-l-4 border-yellow-500 p-6 rounded-r-xl shadow-lg mb-8">
+            <p class="text-yellow-900 font-medium text-lg">
+                🔒 Cette discussion est verrouillée. Vous ne pouvez plus répondre.
+            </p>
+        </div>
+    {% elseif form %}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8" id="reply-form" x-data="{
+            submitting: false,
+            async submitFormAjax(event) {
+                if (this.submitting) return;
+                this.submitting = true;
+                const form = event.target;
+                const formData = new FormData(form);
+                const scrollPosition = window.scrollY;
+                sessionStorage.setItem('scrollPosition', scrollPosition);
 
-		{% if discussion.isLocked %}
-			<div class="bg-gradient-to-br from-yellow-50 to-yellow-100 border-l-4 border-yellow-500 p-6 rounded-r-xl shadow-lg mb-8">
-				<p class="text-yellow-900 font-medium text-lg">
-					🔒 Cette discussion est verrouillée. Vous ne pouvez plus répondre.
-				</p>
-			</div>
-		{% else %}
-			<div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8" id="reply-form" x-data="{
-															submitting: false,
-															async submitFormAjax(event) {
-																if (this.submitting) return;
-					
-																this.submitting = true;
-																const form = event.target;
-																const formData = new FormData(form);
-					
-																// Sauvegarder la position du scroll
-																const scrollPosition = window.scrollY;
-																sessionStorage.setItem('scrollPosition', scrollPosition);
-					
-																try {
-																	const response = await fetch(form.action, {
-																		method: 'POST',
-																		body: formData
-																	});
-					
-																	if (response.ok) {
-																		// Vider le textarea avant de recharger
-																		this.$refs.textarea.value = '';
-																		// Recharger la page
-																		window.location.reload();
-																	} else {
-																		alert('Erreur lors de l\'envoi du message');
-																		this.submitting = false;
-																	}
-																} catch (error) {
-																	alert('Erreur réseau');
-																	this.submitting = false;
-																}
-															},
-															submitForm(event) {
-																if (event.key === 'Enter' && !event.shiftKey) {
-																	event.preventDefault();
-																	document.getElementById('reply-submit-btn').click();
-																}
-															}
-														}">
-				<div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
-					<h2 class="text-2xl font-bold text-gray-900">✍️ Répondre à cette discussion</h2>
-				</div>
-				<div class="p-8">
-					{{ form_start(form, {
-							'attr': {
-								'class': 'space-y-6',
-								'@submit.prevent': 'submitFormAjax($event)'
-							}
-						}) }}
-					<div>
-						{{ form_label(form.content) }}
-						{{ form_widget(form.content, {
-								'attr': {
-									'@keydown': 'submitForm($event)',
-									'placeholder': 'Écrivez votre réponse... (Entrée pour envoyer, Shift+Entrée pour un saut de ligne)',
-									'x-ref': 'textarea'
-								}
-							}) }}
-						<p class="text-xs text-gray-500 mt-1">
-							💡 Appuyez sur
-							<kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Entrée</kbd>
-							pour envoyer,
-							<kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Shift + Entrée</kbd>
-							pour un saut de ligne
-						</p>
-					</div>
-					<div class="flex justify-end">
-						<button type="submit" id="reply-submit-btn" :disabled="submitting" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-10 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-							<span x-show="!submitting">Envoyer la réponse</span>
-							<span x-show="submitting" class="flex items-center gap-2">
-								<svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24">
-									<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-									<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-								</svg>
-								Envoi...
-							</span>
-						</button>
-					</div>
-					{{ form_end(form) }}
-				</div>
-			</div>
-		{% endif %}
-	</div>
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
 
-	{# Scripts de modération #}
-	{% if is_granted('ROLE_MODERATOR') %}
-		<script>
-			function warnUser(userId, postId, username) {
-				document.getElementById('warnUserId').value = userId;
-				document.getElementById('warnPostId').value = postId;
-				document.getElementById('warnUsername').textContent = username;
-				document.getElementById('warnModal').classList.remove('hidden');
-			}
+                    if (response.ok) {
+                        this.$refs.textarea.value = '';
+                        window.location.reload();
+                    } else {
+                        alert('Erreur lors de l\'envoi du message');
+                        this.submitting = false;
+                    }
+                } catch (error) {
+                    alert('Erreur réseau');
+                    this.submitting = false;
+                }
+            },
+            submitForm(event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    document.getElementById('reply-submit-btn').click();
+                }
+            }
+        }">
+            <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+                <h2 class="text-2xl font-bold text-gray-900">✍️ Répondre à cette discussion</h2>
+            </div>
+            <div class="p-8">
+                {{ form_start(form, {
+                    'attr': {
+                        'class': 'space-y-6',
+                        'enctype': 'multipart/form-data',
+                        '@submit.prevent': 'submitFormAjax($event)'
+                    }
+                }) }}
+                
+                <div>
+                    {{ form_label(form.content) }}
+                    {{ form_widget(form.content, {
+                        'attr': {
+                            '@keydown': 'submitForm($event)',
+                            'placeholder': 'Écrivez votre réponse... (Entrée pour envoyer, Shift+Entrée pour un saut de ligne)',
+                            'x-ref': 'textarea'
+                        }
+                    }) }}
+                    <p class="text-xs text-gray-500 mt-1">
+                        💡 Appuyez sur
+                        <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Entrée</kbd>
+                        pour envoyer,
+                        <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Shift + Entrée</kbd>
+                        pour un saut de ligne
+                    </p>
+                </div>
 
-			function closeWarnModal() {
-				document.getElementById('warnModal').classList.add('hidden');
-			}
+                {# Upload d'images #}
+                <div x-data="replyImageUploader()">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📷 Images (optionnel, max 3)</label>
+                    
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 transition-colors"
+                         :class="{ 'border-blue-500 bg-blue-50': dragover }"
+                         @dragover.prevent="dragover = true"
+                         @dragleave.prevent="dragover = false"
+                         @drop.prevent="handleDrop($event)">
+                        
+                        <input type="file" name="images[]" multiple accept="image/jpeg,image/png,image/gif,image/webp"
+                               class="hidden" id="reply-image-input" @change="handleFiles($event)">
+                        
+                        <div x-show="previews.length === 0" class="text-center py-2">
+                            <label for="reply-image-input" class="flex items-center justify-center gap-2 cursor-pointer text-gray-600 hover:text-blue-600">
+                                <span class="text-2xl">📷</span>
+                                <span class="font-medium">Ajouter des images</span>
+                                <span class="text-xs text-gray-400">(max 3, 5 Mo chacune)</span>
+                            </label>
+                        </div>
 
-			function banUser(userId, username) {
-				document.getElementById('banUserId').value = userId;
-				document.getElementById('banUsername').textContent = username;
-				document.getElementById('banModal').classList.remove('hidden');
-			}
+                        {# Prévisualisations #}
+                        <div x-show="previews.length > 0" class="grid grid-cols-4 gap-3">
+                            <template x-for="(preview, index) in previews" :key="index">
+                                <div class="relative group">
+                                    <img :src="preview.url" class="w-full h-24 object-cover rounded-lg">
+                                    <button type="button" @click="removeImage(index)"
+                                            class="absolute top-1 right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                                        ×
+                                    </button>
+                                </div>
+                            </template>
+                            
+                            <label x-show="previews.length < 3" for="reply-image-input"
+                                   class="h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-blue-500 transition-colors">
+                                <span class="text-2xl text-gray-400">+</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
-			function closeBanModal() {
-				document.getElementById('banModal').classList.add('hidden');
-			}
-		</script>
-	{% endif %}
+                <div class="flex justify-end">
+                    <button type="submit" id="reply-submit-btn" :disabled="submitting" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-10 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                        <span x-show="!submitting">Envoyer la réponse</span>
+                        <span x-show="submitting" class="flex items-center gap-2">
+                            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Envoi...
+                        </span>
+                    </button>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    {% endif %}
+</div>
 
-	<script>
-		// Restaurer la position du scroll après le rechargement
-		document.addEventListener('DOMContentLoaded', function () {
-			const scrollPosition = sessionStorage.getItem('scrollPosition');
+{# Scripts de modération #}
+{% if is_granted('ROLE_MODERATOR') %}
+    <script>
+        function warnUser(userId, postId, username) {
+            document.getElementById('warnUserId').value = userId;
+            document.getElementById('warnPostId').value = postId;
+            document.getElementById('warnUsername').textContent = username;
+            document.getElementById('warnModal').classList.remove('hidden');
+        }
+
+        function closeWarnModal() {
+            document.getElementById('warnModal').classList.add('hidden');
+        }
+
+        function banUser(userId, username) {
+            document.getElementById('banUserId').value = userId;
+            document.getElementById('banUsername').textContent = username;
+            document.getElementById('banModal').classList.remove('hidden');
+        }
+
+        function closeBanModal() {
+            document.getElementById('banModal').classList.add('hidden');
+        }
+    </script>
+{% endif %}
+
+<script>
+    // Restaurer la position du scroll après le rechargement
+    document.addEventListener('DOMContentLoaded', function () {
+        const scrollPosition = sessionStorage.getItem('scrollPosition');
+        
+        if (scrollPosition) {
+            window.scrollTo(0, parseInt(scrollPosition));
+            sessionStorage.removeItem('scrollPosition');
+        }
+    });
+
+    function replyImageUploader() {
+		return {
+			dragover: false,
+			previews: [],
+			files: [],
 			
-			if (scrollPosition) {
-				window.scrollTo(0, parseInt(scrollPosition));
-				sessionStorage.removeItem('scrollPosition');
+			handleFiles(event) {
+				this.addFiles(event.target.files);
+			},
+			
+			handleDrop(event) {
+				this.dragover = false;
+				this.addFiles(event.dataTransfer.files);
+			},
+			
+			addFiles(fileList) {
+				for (let file of fileList) {
+					if (this.files.length >= 3) break;
+					if (!file.type.startsWith('image/')) continue;
+					if (file.size > 5 * 1024 * 1024) {
+						alert('Image trop volumineuse (max 5 Mo)');
+						continue;
+					}
+					
+					// Stocker le fichier immédiatement
+					this.files.push(file);
+					
+					// Créer la prévisualisation
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						this.previews.push({
+							url: e.target.result,
+							name: file.name
+						});
+					};
+					reader.readAsDataURL(file);
+				}
+				this.updateInputFiles();
+			},
+			
+			removeImage(index) {
+				this.previews.splice(index, 1);
+				this.files.splice(index, 1);
+				this.updateInputFiles();
+			},
+			
+			updateInputFiles() {
+				const input = document.getElementById('reply-image-input');
+				const dataTransfer = new DataTransfer();
+				this.files.forEach(f => dataTransfer.items.add(f));
+				input.files = dataTransfer.files;
 			}
-		});
-	</script>
+		}
+	}
+</script>
 
-	{% include 'components/_modal.html.twig' %}
+{% include 'components/_modal.html.twig' %}
 {% endblock %}

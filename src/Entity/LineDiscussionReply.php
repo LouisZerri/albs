@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\LineDiscussionReplyRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -34,10 +36,17 @@ class LineDiscussionReply
     #[ORM\Column]
     private ?bool $isEdited = null;
 
+    /**
+     * @var Collection<int, ForumImage>
+     */
+    #[ORM\OneToMany(targetEntity: ForumImage::class, mappedBy: 'reply', fetch: 'EAGER')]
+    private Collection $images;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->isEdited = false;
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -113,6 +122,36 @@ class LineDiscussionReply
     public function setIsEdited(bool $isEdited): static
     {
         $this->isEdited = $isEdited;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ForumImage>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(ForumImage $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setReply($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(ForumImage $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getReply() === $this) {
+                $image->setReply(null);
+            }
+        }
 
         return $this;
     }

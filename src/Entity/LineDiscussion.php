@@ -51,6 +51,12 @@ class LineDiscussion
     #[ORM\OneToMany(targetEntity: LineDiscussionReply::class, mappedBy: 'discussion', orphanRemoval: true, cascade: ['remove'])]
     private Collection $replies;
 
+    /**
+     * @var Collection<int, ForumImage>
+     */
+    #[ORM\OneToMany(targetEntity: ForumImage::class, mappedBy: 'discussion')]
+    private Collection $images;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -58,6 +64,7 @@ class LineDiscussion
         $this->isLocked = false;
         $this->viewCount = 0;
         $this->replies = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -220,6 +227,36 @@ class LineDiscussion
             // set the owning side to null (unless already changed)
             if ($reply->getDiscussion() === $this) {
                 $reply->setDiscussion(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ForumImage>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(ForumImage $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setDiscussion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(ForumImage $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getDiscussion() === $this) {
+                $image->setDiscussion(null);
             }
         }
 

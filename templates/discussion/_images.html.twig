@@ -1,0 +1,11 @@
+{% if images|length > 0 %}
+    <div class="mt-4 grid {{ images|length == 1 ? 'grid-cols-1' : (images|length == 2 ? 'grid-cols-2' : 'grid-cols-3') }} gap-3">
+        {% for image in images %}
+            <a href="{{ asset('uploads/forum/' ~ image.filename) }}" target="_blank" class="block group">
+                <img src="{{ asset('uploads/forum/' ~ image.filename) }}" 
+                     alt="{{ image.originalFilename }}"
+                     class="w-full h-48 object-cover rounded-xl border border-gray-200 group-hover:border-blue-500 transition-colors">
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}

@@ -8,6 +8,7 @@ use App\Entity\Warning;
 use App\Repository\LineDiscussionReplyRepository;
 use App\Repository\UserRepository;
 use App\Repository\WarningRepository;
+use App\Service\AdminCacheService;
 use App\Service\ModerationEmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 #[Route('/moderation')]
 #[IsGranted('ROLE_MODERATOR')] // Accessible aux modos ET admins
@@ -27,7 +30,8 @@ class ModerationController extends AbstractController
         WarningRepository $warningRepository,
         UserRepository $userRepository,
         PaginatorInterface $paginator,
-        Request $request
+        Request $request,
+        CacheInterface $cache
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_MODERATOR');
 
@@ -50,17 +54,23 @@ class ModerationController extends AbstractController
             ? $warningRepository->findWarnedPostIds($postIds)
             : [];
 
-        // Statistiques
-        $warnedUsersCount = $userRepository->count(['warningCount' => 1]);
-        $bannedUsersCount = $userRepository->count(['accountStatus' => 'banned']);
-        $todayMessagesCount = $replyRepository->countMessagesToday();
+        // Statistiques avec cache de 5 minutes
+        $stats = $cache->get('moderation_stats', function (ItemInterface $item) use ($userRepository, $replyRepository) {
+            $item->expiresAfter(300); // 5 minutes
+            
+            return [
+                'warnedUsersCount' => $userRepository->count(['warningCount' => 1]),
+                'bannedUsersCount' => $userRepository->count(['accountStatus' => 'banned']),
+                'todayMessagesCount' => $replyRepository->countMessagesToday(),
+            ];
+        });
 
         return $this->render('moderation/index.html.twig', [
             'pagination' => $pagination,
             'warnedPostIds' => $warnedPostIds,
-            'warnedUsersCount' => $warnedUsersCount,
-            'bannedUsersCount' => $bannedUsersCount,
-            'todayMessagesCount' => $todayMessagesCount,
+            'warnedUsersCount' => $stats['warnedUsersCount'],
+            'bannedUsersCount' => $stats['bannedUsersCount'],
+            'todayMessagesCount' => $stats['todayMessagesCount'],
         ]);
     }
 
@@ -69,7 +79,7 @@ class ModerationController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
-        ModerationEmailService $moderationEmailService
+        ModerationEmailService $moderationEmailService,
     ): Response {
 
         $this->denyAccessUnlessGranted('ROLE_MODERATOR');
@@ -156,7 +166,7 @@ class ModerationController extends AbstractController
     public function removeWarning(
         Warning $warning,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_MODERATOR');
 
@@ -222,7 +232,7 @@ class ModerationController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
-        ModerationEmailService $moderationEmailService
+        ModerationEmailService $moderationEmailService,
     ): Response {
 
         $this->denyAccessUnlessGranted('ROLE_MODERATOR');

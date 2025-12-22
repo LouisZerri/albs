@@ -145,4 +145,18 @@ class LineDiscussionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findWithRelations(int $id): ?LineDiscussion
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d', 'l', 'a', 'ab', 'i')
+            ->leftJoin('d.line', 'l')
+            ->leftJoin('d.author', 'a')
+            ->leftJoin('a.badges', 'ab')
+            ->leftJoin('d.images', 'i')
+            ->where('d.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }
