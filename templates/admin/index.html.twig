@@ -172,16 +172,16 @@
 				</h2>
 				<div class="relative">
 					<input type="text" x-model="searchQuery" @input.debounce.300ms="
-                            if (searchQuery.length >= 2) {
-                                searching = true;
-                                fetch('/admin/search?q=' + encodeURIComponent(searchQuery))
-                                    .then(r => r.json())
-                                    .then(data => { searchResults = data.users; searching = false; })
-                                    .catch(() => { searching = false; });
-                            } else {
-                                searchResults = [];
-                            }
-                        " placeholder="Rechercher par nom d'utilisateur ou email..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+						                            if (searchQuery.length >= 2) {
+						                                searching = true;
+						                                fetch('/admin/search?q=' + encodeURIComponent(searchQuery))
+						                                    .then(r => r.json())
+						                                    .then(data => { searchResults = data.users; searching = false; })
+						                                    .catch(() => { searching = false; });
+						                            } else {
+						                                searchResults = [];
+						                            }
+						                        " placeholder="Rechercher par nom d'utilisateur ou email..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
 					<div x-show="searching" class="absolute right-4 top-1/2 -translate-y-1/2">
 						<svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24">
 							<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -191,26 +191,25 @@
 				</div>
 
 				{# Résultats de recherche #}
-                <div x-show="searchResults.length > 0" class="mt-4 space-y-2">
-                    <template x-for="user in searchResults" :key="user.id">
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-white font-bold"
-                                    x-text="user.username.charAt(0).toUpperCase()"></div>
-                                <div>
-                                    <a :href="user.profileUrl" class="font-bold text-gray-900 hover:text-blue-600" x-text="user.username"></a>
-                                    <p class="text-sm text-gray-500" x-text="user.email"></p>
-                                </div>
-                                <span x-show="user.isAdmin" class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-bold">Admin</span>
-                                <span x-show="user.isModerator && !user.isAdmin" class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-bold">Modo</span>
-                                <span x-show="user.accountStatus === 'banned'" class="px-2 py-1 bg-gray-800 text-white text-xs rounded-full font-bold">Banni</span>
-                            </div>
-                            <a :href="user.profileUrl" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors">
-                                Voir profil →
-                            </a>
-                        </div>
-                    </template>
-                </div>
+				<div x-show="searchResults.length > 0" class="mt-4 space-y-2">
+					<template x-for="user in searchResults" :key="user.id">
+						<div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+							<div class="flex items-center gap-4">
+								<div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-white font-bold" x-text="user.username.charAt(0).toUpperCase()"></div>
+								<div>
+									<a :href="user.profileUrl" class="font-bold text-gray-900 hover:text-blue-600" x-text="user.username"></a>
+									<p class="text-sm text-gray-500" x-text="user.email"></p>
+								</div>
+								<span x-show="user.isAdmin" class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-bold">Admin</span>
+								<span x-show="user.isModerator && !user.isAdmin" class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-bold">Modo</span>
+								<span x-show="user.accountStatus === 'banned'" class="px-2 py-1 bg-gray-800 text-white text-xs rounded-full font-bold">Banni</span>
+							</div>
+							<a :href="user.profileUrl" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors">
+								Voir profil →
+							</a>
+						</div>
+					</template>
+				</div>
 				<p x-show="searchQuery.length >= 2 && searchResults.length === 0 && !searching" class="mt-4 text-gray-500 text-center">
 					Aucun utilisateur trouvé
 				</p>
@@ -383,11 +382,11 @@
 						<div class="max-h-[600px] overflow-y-auto scrollbar-thin space-y-4">
 							{% for warning in latestWarnings %}
 								<div class="p-4 rounded-xl border-l-4
-										                                {% if warning.relatedPostType == 'direct_ban' %}
-										                                    bg-red-50 border-red-500
-										                                {% else %}
-										                                    bg-orange-50 border-orange-500
-										                                {% endif %}">
+									{% if warning.relatedPostType == 'direct_ban' %}
+										bg-red-50 border-red-500
+									{% else %}
+										bg-orange-50 border-orange-500
+									{% endif %}">
 									<div class="flex items-start justify-between">
 										<div class="flex-grow">
 											<div class="flex items-center gap-3 mb-2">

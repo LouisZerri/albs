@@ -50,7 +50,8 @@
 							<span class="text-2xl sm:text-3xl leading-none -mr-1">🚇</span>
 						</div>
 					</div>
-					<p class="text-xs sm:text-sm text-blue-600 mt-1 sm:mt-2 font-semibold"><span id="passed-percentage">{{ stats.passedPercentage|round(0) }}</span>%</p>
+					<p class="text-xs sm:text-sm text-blue-600 mt-1 sm:mt-2 font-semibold">
+						<span id="passed-percentage">{{ stats.passedPercentage|round(0) }}</span>%</p>
 				</div>
 
 				<div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4 sm:p-6 relative overflow-hidden border border-green-200 hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
@@ -69,7 +70,8 @@
 							<span class="text-2xl sm:text-3xl leading-none -mr-1">🚇</span>
 						</div>
 					</div>
-					<p class="text-xs sm:text-sm text-green-600 mt-1 sm:mt-2 font-semibold"><span id="stopped-percentage">{{ stats.stoppedPercentage|round(0) }}</span>%</p>
+					<p class="text-xs sm:text-sm text-green-600 mt-1 sm:mt-2 font-semibold">
+						<span id="stopped-percentage">{{ stats.stoppedPercentage|round(0) }}</span>%</p>
 				</div>
 			</div>
 		</div>
@@ -201,16 +203,22 @@
 				<div class="w-1 flex-1 {% if isFirst %}bg-transparent{% endif %}" style="{% if not isFirst %}background-color: {{ line.color }};{% endif %}"></div>
 
 				{# Cercle cliquable #}
-				<div data-station-target="circle" data-action="click->station#cycle" class="w-8 h-8 sm:w-7 sm:h-7 rounded-full border-4 shrink-0 transition-all duration-200 ring-4
-															                        {% if isTerminus %}
-															                            bg-gray-900 ring-transparent cursor-default
-															                        {% elseif isStopped %}
-															                            bg-green-500 ring-green-200 cursor-pointer active:scale-90
-															                        {% elseif isPassed %}
-															                            bg-blue-400 ring-blue-200 cursor-pointer active:scale-90
-															                        {% else %}
-															                            bg-white ring-transparent cursor-pointer hover:scale-110 active:scale-90
-															                        {% endif %}" style="border-color: {{ line.color }};"></div>
+				<div data-station-target="circle" data-action="click->station#cycle" class="w-8 h-8 sm:w-7 sm:h-7 rounded-full border-4 shrink-0 transition-all duration-200 ring-4 cursor-pointer active:scale-90 hover:scale-110
+					{% if isTerminus %}
+						{% if isStopped %}
+							bg-green-600 ring-green-300
+						{% elseif isPassed %}
+							bg-blue-500 ring-blue-300
+						{% else %}
+							bg-gray-900 ring-transparent
+						{% endif %}
+					{% elseif isStopped %}
+						bg-green-500 ring-green-200
+					{% elseif isPassed %}
+						bg-blue-400 ring-blue-200
+					{% else %}
+						bg-white ring-transparent
+					{% endif %}" style="border-color: {{ line.color }};"></div>
 
 				{# Trait du bas #}
 				<div class="w-1 flex-1 {% if isLast %}bg-transparent{% endif %}" style="{% if not isLast %}background-color: {{ line.color }};{% endif %}"></div>
@@ -219,27 +227,29 @@
 			{# Contenu de la station #}
 			<div class="flex-grow py-2 sm:py-3 pl-2 sm:pl-4 min-w-0">
 				<div class="rounded-xl px-3 sm:px-6 py-3 sm:py-4 transition duration-150
-																		                        {% if branchColor == 'purple' %}
-																		                            bg-purple-50 border-l-4 border-purple-400
-																		                        {% elseif branchColor == 'indigo' %}
-																		                            bg-indigo-50 border-l-4 border-indigo-400
-																		                        {% else %}
-																		                            bg-gray-50
-																		                        {% endif %}">
+					{% if branchColor == 'purple' %}
+						bg-purple-50 border-l-4 border-purple-400
+					{% elseif branchColor == 'indigo' %}
+						bg-indigo-50 border-l-4 border-indigo-400
+					{% else %}
+						bg-gray-50
+					{% endif %}">
 					<div class="flex items-center justify-between gap-2">
 						<div class="min-w-0 flex-grow">
-							<h3 class="text-sm sm:text-lg font-medium text-gray-900 truncate">
+							<h3 class="text-sm sm:text-lg {% if isTerminus %}font-black{% else %}font-medium{% endif %} text-gray-900 truncate">
 								{{ station.name }}
 							</h3>
 							<div class="flex items-center gap-2 mt-0.5">
 								{% if isTerminus %}
 									<span class="text-xs sm:text-sm text-gray-500">🚇 Terminus</span>
+									<span data-station-target="statusText" class="text-xs sm:text-sm {% if isStopped %}text-green-600 font-medium{% elseif isPassed %}text-blue-600 font-medium{% else %}hidden{% endif %}">
+										{% if isStopped %}· ✅ Visité{% elseif isPassed %}· 🚶 Passé{% endif %}
+									</span>
 								{% elseif isFork %}
 									<span class="text-xs text-orange-600 font-semibold">⚠️ Fourche</span>
 								{% else %}
 									<span data-station-target="statusText" class="text-xs sm:text-sm {% if isStopped %}text-green-600 font-medium{% elseif isPassed %}text-blue-600 font-medium{% else %}text-gray-400{% endif %}">
-										{% if isStopped %}✅ Visité{% elseif isPassed %}🚶 Passé{% else %}Touchez le cercle
-										{% endif %}
+										{% if isStopped %}✅ Visité{% elseif isPassed %}🚶 Passé{% else %}Touchez le cercle{% endif %}
 									</span>
 								{% endif %}
 								{% if station.branch == 'direction' %}
@@ -260,17 +270,15 @@
 						</div>
 
 						{# Indicateur visuel sur mobile #}
-						{% if not isTerminus %}
-							<div class="sm:hidden text-xl shrink-0" data-station-target="mobileIcon">
-								{% if isStopped %}
-									✅
-								{% elseif isPassed %}
-									🚶
-								{% else %}
-									○
-								{% endif %}
-							</div>
-						{% endif %}
+						<div class="sm:hidden text-xl shrink-0" data-station-target="mobileIcon">
+							{% if isStopped %}
+								✅
+							{% elseif isPassed %}
+								🚶
+							{% else %}
+								○
+							{% endif %}
+						</div>
 					</div>
 				</div>
 			</div>

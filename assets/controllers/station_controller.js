@@ -23,11 +23,10 @@ export default class extends Controller {
         event.preventDefault();
         event.stopPropagation();
 
-        if (this.isTerminus) return;
         if (globalProcessing) return;
 
         globalProcessing = true;
-        
+
         const circle = event.currentTarget;
         circle.style.opacity = '0.5';
         circle.style.pointerEvents = 'none';
@@ -44,7 +43,7 @@ export default class extends Controller {
 
         try {
             let newPassed, newStopped;
-            
+
             switch (nextState) {
                 case 0: newPassed = false; newStopped = false; break;
                 case 1: newPassed = true; newStopped = false; break;
@@ -65,10 +64,10 @@ export default class extends Controller {
                 // Mettre à jour l'état local
                 this.passed = data.passed;
                 this.stopped = data.stopped;
-                
+
                 // Mettre à jour les compteurs avec les anciennes et nouvelles valeurs
                 this.updateStats(oldPassed, oldStopped, data.passed, data.stopped);
-                
+
                 // Animation succès
                 circle.style.transform = 'scale(1.2)';
                 setTimeout(() => {
@@ -100,25 +99,52 @@ export default class extends Controller {
     }
 
     setVisualState(circle, state) {
-        circle.classList.remove('bg-white', 'bg-blue-400', 'bg-green-500', 'ring-blue-200', 'ring-green-200', 'ring-transparent');
-        
-        switch (state) {
-            case 0:
-                circle.classList.add('bg-white', 'ring-transparent');
-                break;
-            case 1:
-                circle.classList.add('bg-blue-400', 'ring-blue-200');
-                break;
-            case 2:
-                circle.classList.add('bg-green-500', 'ring-green-200');
-                break;
+        circle.classList.remove(
+            'bg-white', 'bg-blue-400', 'bg-blue-500', 'bg-green-500', 'bg-green-600', 'bg-gray-900',
+            'ring-blue-200', 'ring-blue-300', 'ring-green-200', 'ring-green-300', 'ring-transparent'
+        );
+
+        const isTerminus = this.isTerminus;
+
+        if (isTerminus) {
+            switch (state) {
+                case 0:
+                    circle.classList.add('bg-gray-900', 'ring-transparent');
+                    break;
+                case 1:
+                    circle.classList.add('bg-blue-500', 'ring-blue-300');
+                    break;
+                case 2:
+                    circle.classList.add('bg-green-600', 'ring-green-300');
+                    break;
+            }
+        } else {
+            switch (state) {
+                case 0:
+                    circle.classList.add('bg-white', 'ring-transparent');
+                    break;
+                case 1:
+                    circle.classList.add('bg-blue-400', 'ring-blue-200');
+                    break;
+                case 2:
+                    circle.classList.add('bg-green-500', 'ring-green-200');
+                    break;
+            }
         }
 
         if (this.hasStatusTextTarget) {
-            const texts = ['Touchez le cercle', '🚶 Passé', '✅ Visité'];
-            const colors = ['text-gray-400', 'text-blue-600 font-medium', 'text-green-600 font-medium'];
-            this.statusTextTarget.textContent = texts[state];
-            this.statusTextTarget.className = `text-xs sm:text-sm ${colors[state]}`;
+            if (this.isTerminus) {
+                // Pour les terminus, on affiche avec le point devant
+                const texts = ['', '· 🚶 Passé', '· ✅ Visité'];
+                const colors = ['hidden', 'text-blue-600 font-medium', 'text-green-600 font-medium'];
+                this.statusTextTarget.textContent = texts[state];
+                this.statusTextTarget.className = `text-xs sm:text-sm ${colors[state]}`;
+            } else {
+                const texts = ['Touchez le cercle', '🚶 Passé', '✅ Visité'];
+                const colors = ['text-gray-400', 'text-blue-600 font-medium', 'text-green-600 font-medium'];
+                this.statusTextTarget.textContent = texts[state];
+                this.statusTextTarget.className = `text-xs sm:text-sm ${colors[state]}`;
+            }
         }
 
         if (this.hasMobileIconTarget) {
@@ -138,7 +164,7 @@ export default class extends Controller {
         // Décrémenter si on avait et on n'a plus
         if (oldPassed && !newPassed) passed--;
         if (oldStopped && !newStopped) stopped--;
-        
+
         // Incrémenter si on n'avait pas et on a maintenant
         if (!oldPassed && newPassed) passed++;
         if (!oldStopped && newStopped) stopped++;
