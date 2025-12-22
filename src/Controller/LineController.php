@@ -49,7 +49,6 @@ class LineController extends AbstractController
         foreach ($allStations as $station) {
             $branch = $station->getBranch();
 
-            // Pour les lignes 7 et 13 : gérer les fourches
             if ($branch === 'fork') {
                 $mainStations[] = $station;
                 $hasFork = true;
@@ -59,7 +58,6 @@ class LineController extends AbstractController
                 }
                 $branchStations[$branch][] = $station;
             } else {
-                // Toutes les autres stations (y compris celles avec branch 'direction' ou 'retour' pour la 7bis et 10)
                 $mainStations[] = $station;
             }
         }
@@ -140,8 +138,6 @@ class LineController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
-        $type = $data['type'] ?? null;
-        $checked = $data['checked'] ?? false;
         $now = new \DateTimeImmutable();
 
         // Trouver ou créer UserStation
@@ -158,29 +154,44 @@ class LineController extends AbstractController
             $userStation->setStopped(false);
         }
 
-        if ($type === 'passed') {
-            $userStation->setPassed($checked);
+        // Nouveau format : passed et stopped envoyés directement
+        if (isset($data['passed']) && isset($data['stopped'])) {
+            $newPassed = (bool) $data['passed'];
+            $newStopped = (bool) $data['stopped'];
 
-            if ($checked && $userStation->getFirstPassedAt() === null) {
+            if ($newPassed && !$userStation->isPassed()) {
                 $userStation->setFirstPassedAt($now);
             }
+            $userStation->setPassed($newPassed);
 
-            // RÈGLE : Si on décoche Passé, décocher automatiquement Visité
-            if (!$checked) {
-                $userStation->setStopped(false);
-            }
-        } elseif ($type === 'stopped') {
-            $userStation->setStopped($checked);
-
-            if ($checked && $userStation->getFirstStoppedAt() === null) {
+            if ($newStopped && !$userStation->isStopped()) {
                 $userStation->setFirstStoppedAt($now);
             }
+            $userStation->setStopped($newStopped);
+        }
+        // Ancien format (rétrocompatibilité)
+        elseif (isset($data['type'])) {
+            $type = $data['type'];
+            $checked = $data['checked'] ?? false;
 
-            // RÈGLE : Si on coche Visité, cocher automatiquement Passé
-            if ($checked) {
-                $userStation->setPassed(true);
-                if ($userStation->getFirstPassedAt() === null) {
+            if ($type === 'passed') {
+                $userStation->setPassed($checked);
+                if ($checked && $userStation->getFirstPassedAt() === null) {
                     $userStation->setFirstPassedAt($now);
+                }
+                if (!$checked) {
+                    $userStation->setStopped(false);
+                }
+            } elseif ($type === 'stopped') {
+                $userStation->setStopped($checked);
+                if ($checked && $userStation->getFirstStoppedAt() === null) {
+                    $userStation->setFirstStoppedAt($now);
+                }
+                if ($checked) {
+                    $userStation->setPassed(true);
+                    if ($userStation->getFirstPassedAt() === null) {
+                        $userStation->setFirstPassedAt($now);
+                    }
                 }
             }
         }
@@ -192,22 +203,6 @@ class LineController extends AbstractController
         // Vérifier et attribuer de nouveaux badges
         $newBadges = $badgeService->checkAndAwardBadges($user);
 
-        // Stocker les badges dans la session pour les afficher après le reload
-        if (!empty($newBadges)) {
-            $session = $request->getSession();
-            $pendingBadges = $session->get('pending_badges', []);
-
-            foreach ($newBadges as $badge) {
-                $pendingBadges[] = [
-                    'icon' => $badge->getIcon(),
-                    'name' => $badge->getName(),
-                ];
-            }
-
-            $session->set('pending_badges', $pendingBadges);
-        }
-
-        // Préparer les données pour le JSON
         $badgesData = [];
         foreach ($newBadges as $badge) {
             $badgesData[] = [
