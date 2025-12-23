@@ -333,7 +333,7 @@
 										</div>
 										<div class="flex items-center gap-3 text-xs text-gray-500">
 											<span>Par
-												<strong>{{ warning.moderator.username }}</strong>
+												<strong>{{ warning.moderator ? warning.moderator.username : 'Modérateur supprimé' }}</strong>
 											</span>
 											<span>•</span>
 											<span>{{ warning.createdAt|date('d/m/Y à H:i') }}</span>

@@ -15,9 +15,11 @@ class Warning
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'warnings')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?User $moderator = null;
 
     #[ORM\Column(type: Types::TEXT)]

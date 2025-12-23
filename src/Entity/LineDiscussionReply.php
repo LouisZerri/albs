@@ -17,11 +17,11 @@ class LineDiscussionReply
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'replies')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?LineDiscussion $discussion = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $author = null;
 
     #[ORM\Column(type: Types::TEXT)]

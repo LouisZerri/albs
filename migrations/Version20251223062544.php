@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20251222072138 extends AbstractMigration
+final class Version20251223062544 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -35,17 +35,17 @@ final class Version20251222072138 extends AbstractMigration
         $this->addSql('ALTER TABLE badge_user ADD CONSTRAINT FK_299D3A50A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE forum_image ADD CONSTRAINT FK_DD49A2881ADED311 FOREIGN KEY (discussion_id) REFERENCES line_discussion (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE forum_image ADD CONSTRAINT FK_DD49A2888A0E4E7F FOREIGN KEY (reply_id) REFERENCES line_discussion_reply (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE forum_image ADD CONSTRAINT FK_DD49A288A2B28FE8 FOREIGN KEY (uploaded_by_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE forum_image ADD CONSTRAINT FK_DD49A288A2B28FE8 FOREIGN KEY (uploaded_by_id) REFERENCES user (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE line_discussion ADD CONSTRAINT FK_7E02EAE44D7B7542 FOREIGN KEY (line_id) REFERENCES line (id)');
-        $this->addSql('ALTER TABLE line_discussion ADD CONSTRAINT FK_7E02EAE4F675F31B FOREIGN KEY (author_id) REFERENCES user (id)');
-        $this->addSql('ALTER TABLE line_discussion_reply ADD CONSTRAINT FK_6C4721471ADED311 FOREIGN KEY (discussion_id) REFERENCES line_discussion (id)');
-        $this->addSql('ALTER TABLE line_discussion_reply ADD CONSTRAINT FK_6C472147F675F31B FOREIGN KEY (author_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE line_discussion ADD CONSTRAINT FK_7E02EAE4F675F31B FOREIGN KEY (author_id) REFERENCES user (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE line_discussion_reply ADD CONSTRAINT FK_6C4721471ADED311 FOREIGN KEY (discussion_id) REFERENCES line_discussion (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE line_discussion_reply ADD CONSTRAINT FK_6C472147F675F31B FOREIGN KEY (author_id) REFERENCES user (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE station ADD CONSTRAINT FK_9F39F8B14D7B7542 FOREIGN KEY (line_id) REFERENCES line (id)');
         $this->addSql('ALTER TABLE user ADD CONSTRAINT FK_8D93D649102FDB2C FOREIGN KEY (favorite_line_id) REFERENCES line (id)');
-        $this->addSql('ALTER TABLE user_station ADD CONSTRAINT FK_C734E6BBA76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE user_station ADD CONSTRAINT FK_C734E6BBA76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE user_station ADD CONSTRAINT FK_C734E6BB21BDB235 FOREIGN KEY (station_id) REFERENCES station (id)');
-        $this->addSql('ALTER TABLE warning ADD CONSTRAINT FK_404E9CC6A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
-        $this->addSql('ALTER TABLE warning ADD CONSTRAINT FK_404E9CC6D0AFA354 FOREIGN KEY (moderator_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE warning ADD CONSTRAINT FK_404E9CC6A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE warning ADD CONSTRAINT FK_404E9CC6D0AFA354 FOREIGN KEY (moderator_id) REFERENCES user (id) ON DELETE SET NULL');
     }
 
     public function down(Schema $schema): void
